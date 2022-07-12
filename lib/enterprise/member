@@ -7,8 +7,8 @@
 # gt repo member add user-b
 
 # gt repo member +el:admin -user-a +user-b
-___x_cmd_gt_enterprise_member(){
-    param:subcmd ___x_cmd_gt_enterprise_member                  \
+___x_cmd_gitlab_enterprise_member(){
+    param:subcmd ___x_cmd_gitlab_enterprise_member                  \
         ls              "List member"                           \
         user            "Show member user info"                 \
         add             "Add member"                            \
@@ -18,13 +18,13 @@ ___x_cmd_gt_enterprise_member(){
     param:run
 
     gt_log error "subcmd not found. show help."
-    ___x_cmd_gt_enterprise_member _param_help_doc
+    ___x_cmd_gitlab_enterprise_member _param_help_doc
     return 0
 }
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5EnterprisesEnterpriseMembers
-___x_cmd_gt_enterprise_member_ls(){
+___x_cmd_gitlab_enterprise_member_ls(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -36,14 +36,14 @@ options:
     param:run
 
     local ___gt_error_msg="Couldn't find any data by: ${enterprise}"
-    ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/enterprises/${enterprise##*/}/members" role page per_page <<A
+    ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/enterprises/${enterprise##*/}/members" role page per_page <<A
         ___ui_table_json NameSpace=.user.login Name=.user.name MarkName=.remark IsOutSourced=.outsourced Role=.role -- \$@
 A
 }
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5EnterprisesEnterpriseMembersUsername
-___x_cmd_gt_enterprise_member_user(){
+___x_cmd_gitlab_enterprise_member_user(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -54,7 +54,7 @@ options:
 '
     param:run
 
-    ___x_cmd_gt_get_multi "/v5/enterprises/${enterprise}/members/${username}" | \
+    ___x_cmd_gitlab_get_multi "/v5/enterprises/${enterprise}/members/${username}" | \
     {
         ___x_cmd_git_json_query_rename name_space=.user.login mark_name=.remark role=.role is_active=.active is_out_sourced=.outsourced
         if [ -n "$name_space" ]; then
@@ -69,7 +69,7 @@ options:
 
 # shellcheck disable=SC2181,SC2086,SC2154
 # https://gitee.com/api/v5/swagger#/postV5EnterprisesEnterpriseMembers
-___x_cmd_gt_enterprise_member_add(){
+___x_cmd_gitlab_enterprise_member_add(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -91,7 +91,7 @@ options:
     # TODO: http handle，delete repo return data is null.Status: 204 No Content
     for username in "$@"; do
         if printf "%s" "${gen_gt_json}" | sed s/%%username%%/"${username##%/}"/g | \
-            ___x_cmd_gt_http post "/v5/enterprises/${enterprise}/members" - >/dev/null; then
+            ___x_cmd_gitlab_http post "/v5/enterprises/${enterprise}/members" - >/dev/null; then
             gt_log info  "Add $username successfully"
         else
             gt_log error "Add $username failure"
@@ -102,7 +102,7 @@ options:
 
 # shellcheck disable=SC2181
 # https://gitee.com/api/v5/swagger#/deleteV5EnterprisesEnterpriseMembersUsername
-___x_cmd_gt_enterprise_member_rm(){
+___x_cmd_gitlab_enterprise_member_rm(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -115,7 +115,7 @@ options:
     local username
     for username in "$@"; do
         # TODO: http handle，delete repo return data is null.Status: 204 No Content
-        if ___x_cmd_gt_http delete "/v5/enterprises/${enterprise##*/}/members/${username##*/}" >/dev/null; then
+        if ___x_cmd_gitlab_http delete "/v5/enterprises/${enterprise##*/}/members/${username##*/}" >/dev/null; then
             gt_log info  "Remove user successfully: $username"
         else
             gt_log error "Remove user failure by $username $enterprise"
@@ -126,7 +126,7 @@ options:
 
 # shellcheck disable=SC2181
 # https://gitee.com/api/v5/swagger#/putV5EnterprisesEnterpriseMembersUsername
-___x_cmd_gt_enterprise_member_access(){
+___x_cmd_gitlab_enterprise_member_access(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -140,7 +140,7 @@ options:
     local gen_gt_json
     gen_gt_json="$(param:option2json active=^^active -enterprise -username)"
 
-    ___x_cmd_gt_http put "/v5/enterprises/${enterprise##*/}/members/${username##*/}" "$gen_gt_json" | \
+    ___x_cmd_gitlab_http put "/v5/enterprises/${enterprise##*/}/members/${username##*/}" "$gen_gt_json" | \
     {
         ___x_cmd_git_json_query_rename user=.user
         if [ -n "$user" ]; then

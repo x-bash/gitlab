@@ -2,8 +2,8 @@
 # shellcheck disable=SC2039,3043
 
 
-___x_cmd_gt_repo_pr(){
-    param:subcmd ___x_cmd_gt_repo_pr                            \
+___x_cmd_gitlab_repo_pr(){
+    param:subcmd ___x_cmd_gitlab_repo_pr                            \
         ls              "List pull requests"                    \
         log             "List pull requests log"                \
         commit          "List pull requests commit"             \
@@ -17,7 +17,7 @@ ___x_cmd_gt_repo_pr(){
     param:subcmd:try
     param:run
 
-    ___x_cmd_gt_repo_pr _param_help_doc
+    ___x_cmd_gitlab_repo_pr _param_help_doc
     gt_log warn "Subcmd Not Found."
     return 1
 }
@@ -25,7 +25,7 @@ ___x_cmd_gt_repo_pr(){
 
 # Section: ls info log commit view
 
-___x_cmd_gt_repo_pr_ls(){
+___x_cmd_gitlab_repo_pr_ls(){
 
     param:scope     ___x_cmd_gt
     param:dsl       '
@@ -45,9 +45,9 @@ options:
     --labels            "labels"                                                             <>=""
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
-    ___gt_ui_mutual ___x_cmd_gt_http get "/v5/repos/${owner_repo}/pulls" state head base sort since direction milestone_number \
+    ___gt_ui_mutual ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls" state head base sort since direction milestone_number \
         labels page per_page <<A
             ___ui_table_json Id=.id Title=.title Body=.body User=.user.login TargetBranch=.base.ref SourceBranch=.head.ref \
                 CreateTime=.created_at UpdateTime=.updated_at Url=.html_url -- \$@
@@ -58,7 +58,7 @@ A
 ___parse_pr_init_owner_repo_and_pr_main(){
     local pr_number=${pr##*/}
     owner_repo=${pr%/$pr_number}
-    ___x_cmd_gt_param_normalize_repo "$owner_repo"
+    ___x_cmd_gitlab_param_normalize_repo "$owner_repo"
     pr="$pr_number"
 }
 
@@ -68,7 +68,7 @@ alias ___parse_pr_init_owner_repo_and_pr='
     ___parse_pr_init_owner_repo_and_pr_main || return
 '
 
-___x_cmd_gt_repo_pr_info(){
+___x_cmd_gitlab_repo_pr_info(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -78,11 +78,11 @@ options:
 
     ___parse_pr_init_owner_repo_and_pr
 
-    ___x_cmd_gt_http get "/v5/repos/${owner_repo}/pulls/$pr"
+    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls/$pr"
 }
 
 
-___x_cmd_gt_repo_pr_log(){
+___x_cmd_gitlab_repo_pr_log(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -94,10 +94,10 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gt_http get "/v5/repos/${owner_repo}/pulls/$pr/operate_logs" sort
+    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls/$pr/operate_logs" sort
 }
 
-___x_cmd_gt_repo_pr_commit(){
+___x_cmd_gitlab_repo_pr_commit(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -106,10 +106,10 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gt_http get "/v5/repos/${owner_repo}/pulls/$pr/commits"
+    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls/$pr/commits"
 }
 
-___x_cmd_gt_repo_pr_view(){
+___x_cmd_gitlab_repo_pr_view(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -127,7 +127,7 @@ options:
 # Section: create update merge
 
 # shellcheck disable=SC2154,SC2181
-___x_cmd_gt_repo_pr_create(){
+___x_cmd_gitlab_repo_pr_create(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -149,14 +149,14 @@ options:
 '
     param:run
 
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
     local data
     local title
     local state
     local html_url
-    data="$(___x_cmd_gt_http post "/v5/repos/$owner_repo/pulls" title head base body milestone_number \
+    data="$(___x_cmd_gitlab_http post "/v5/repos/$owner_repo/pulls" title head base body milestone_number \
         labels issue assignees testers assignees_number testers_number prune_source_branch)"
-    ___x_cmd_gt_json_query_rename "$data" title=.title state=.state html_url=.html_url
+    ___x_cmd_gitlab_json_query_rename "$data" title=.title state=.state html_url=.html_url
     if [ -n "$title" ];then
         ___x_cmd_ui tf "true" "Success" "title: $title" "owner_repo: $owner_repo" "state: $state" \
          "base: $base" "source branch: $head" "target branch: $base" "url: $html_url"
@@ -167,7 +167,7 @@ options:
     fi
 }
 
-___x_cmd_gt_repo_pr_update(){
+___x_cmd_gitlab_repo_pr_update(){
     param:scope     ___x_cmd_gt
 ##TODO:state
     param:dsl       '
@@ -186,11 +186,11 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gt_http patch "/v5/repos/${owner_repo}/pulls/$pr" title body milestone_number\
+    ___x_cmd_gitlab_http patch "/v5/repos/${owner_repo}/pulls/$pr" title body milestone_number\
         labels assignees_number testers_number state
 }
 
-___x_cmd_gt_repo_pr_merge(){
+___x_cmd_gitlab_repo_pr_merge(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -205,7 +205,7 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gt_http put json "/v5/repos/${owner_repo}/pulls/$pr/merge"  merge_method \
+    ___x_cmd_gitlab_http put json "/v5/repos/${owner_repo}/pulls/$pr/merge"  merge_method \
         prune_source_branch title description
 }
 

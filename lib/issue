@@ -7,9 +7,9 @@
 # gt repo issue add user-b
 
 # gt repo issue +el:admin -user-a +user-b
-___x_cmd_gt_issue(){
+___x_cmd_gitlab_issue(){
     param:scope         ___x_cmd_gt
-    param:subcmd ___x_cmd_gt_issue                  \
+    param:subcmd ___x_cmd_gitlab_issue                  \
         create          "create issue"              \
         update          "update issue"              \
         logs            "get issue logs"            \
@@ -17,7 +17,7 @@ ___x_cmd_gt_issue(){
     param:subcmd:try
     param:run
 
-    ___x_cmd_gt_issue _param_help_doc
+    ___x_cmd_gitlab_issue _param_help_doc
     gt_log warn "Subcmd Not Found."
     return 1
 }
@@ -25,7 +25,7 @@ ___x_cmd_gt_issue(){
 
 # shellcheck disable=SC2154,SC2034
 # https://gitee.com/api/v5/swagger#/postV5ReposOwnerIssues
-___x_cmd_gt_issue_create(){
+___x_cmd_gitlab_issue_create(){
     param:scope         ___x_cmd_gt
     param:dsl      '
 options:
@@ -46,7 +46,7 @@ options:
     local gen_gt_json
     gen_gt_json="$(param:option2json security_hole=^^security issue_type=type -security -type)"
 
-    ___x_cmd_gt_http post "/v5/repos/${repo##*/}/issues" "$gen_gt_json" | \
+    ___x_cmd_gitlab_http post "/v5/repos/${repo##*/}/issues" "$gen_gt_json" | \
     {
         ___x_cmd_git_json_query_rename id=.number title=.title html_url=.html_url
         if [ -n "$id" ]; then
@@ -61,7 +61,7 @@ options:
 
 # shellcheck disable=SC2154,SC2034
 # https://gitee.com/api/v5/swagger#/patchV5ReposOwnerIssuesNumber
-___x_cmd_gt_issue_update(){
+___x_cmd_gitlab_issue_update(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -85,7 +85,7 @@ options:
     local gen_gt_json
     gen_gt_json="$(param:option2json issue_type=type security_hole=^^security -security -type)"
 
-    ___x_cmd_gt_http patch "/v5/repos/${owner##*/}/issues/${number}" "$gen_gt_json" | \
+    ___x_cmd_gitlab_http patch "/v5/repos/${owner##*/}/issues/${number}" "$gen_gt_json" | \
     {
         ___x_cmd_git_json_query_rename id=.number state=.state html_url=.html_url
         if [ -n "$id" ]; then
@@ -100,7 +100,7 @@ options:
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerIssuesNumberOperateLogs
-___x_cmd_gt_issue_logs(){
+___x_cmd_gitlab_issue_logs(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -109,10 +109,10 @@ options:
     --sort          "sort(asc、desc)"                                                    <>="desc"
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
     local ___gt_error_msg="Couldn't find any data by: $repo $number"
-    ___gt_ui_mutual ___x_cmd_gt_http get "/v5/repos/${owner_repo##*/}/issues/${number}/operate_logs" repo sort <<A
+    ___gt_ui_mutual ___x_cmd_gitlab_http get "/v5/repos/${owner_repo##*/}/issues/${number}/operate_logs" repo sort <<A
         ___ui_table_json Time=.created_at User=.user.login Type=.action_type Content=.content -- \$@
 A
 }
@@ -120,7 +120,7 @@ A
 # shellcheck shell=sh
 # shellcheck disable=SC2039,3043,SC2154
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoIssuesComments
-___x_cmd_gt_repo_issue(){
+___x_cmd_gitlab_repo_issue(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -140,20 +140,20 @@ options:
     --number        "repo issue number"                                                  <>=""
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
     local gen_gt_json
     gen_gt_json="$(param:option2json -repo -page -per_page)"
 
     if [ -z "$number" ]; then
-        ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/repos/${owner_repo}/issues" state labels milestone \
+        ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/repos/${owner_repo}/issues" state labels milestone \
             assignee creator program sort direction number <<A
         IssueNumber=.number Title=.title State=.issue_state Assigner=.assignee.name Body=.body -- \$@
 A
     else
-        ___x_cmd_gt_http get "/v5/repos/${owner_repo}/issues/${number}" | \
+        ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/issues/${number}" | \
         {
-            ___x_cmd_gt_json_query_rename "$data" id=.number title=.title state=.state assignee=.assignee.name
+            ___x_cmd_gitlab_json_query_rename "$data" id=.number title=.title state=.state assignee=.assignee.name
             if [ -n "$id" ]; then
                 ___x_cmd_ui_tf true  "Success" "id: $id" "title: $title" "state: $state" "assignee: $assignee"
                 return 0
@@ -168,7 +168,7 @@ A
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5OrgsOrgIssues
-___x_cmd_gt_org_issue(){
+___x_cmd_gitlab_org_issue(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -187,7 +187,7 @@ options:
     gen_gt_json="$(param:option2json -org -page -per_page)"
 
     local ___gt_error_msg="Couldn't find any data by: ${org}"
-    ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/orgs/${org##*/}/issues" filter state labels \
+    ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/orgs/${org##*/}/issues" filter state labels \
         sort direction since page per_page <<A
         ___ui_table_json IssueNumber=.number State=.issue_state Assigner=.assignee.name \
             Repository=.repository.full_name Type=.issue_type Title=.title Url=.html_url -- \$@
@@ -196,7 +196,7 @@ A
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5EnterprisesEnterpriseIssues
-___x_cmd_gt_enterprise_issue(){
+___x_cmd_gitlab_enterprise_issue(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -216,7 +216,7 @@ options:
     param:run
 
     local ___gt_error_msg="Couldn't find any data by: ${enterprise}"
-    ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/enterprises/${enterprise##*/}/issues" filter state labels sort direction \
+    ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/enterprises/${enterprise##*/}/issues" filter state labels sort direction \
         milestone assignee creator program <<A
         ___ui_table_json IssueNumber=.number State=.issue_state Assigner=.assignee.name AssignerMarkName=.assignee.remark \
             Repository=.repository.full_name Type=.issue_type Title=.title Url=.html_url -- \$@
@@ -225,9 +225,9 @@ A
 
 # Section : comment
 
-___x_cmd_gt_issue_comment(){
+___x_cmd_gitlab_issue_comment(){
     param:scope         ___x_cmd_gt
-    param:subcmd ___x_cmd_gt_issue_comment          \
+    param:subcmd ___x_cmd_gitlab_issue_comment          \
         ls              "list all comment"          \
         create          "create a comment"          \
         update          "update a comment"          \
@@ -235,15 +235,15 @@ ___x_cmd_gt_issue_comment(){
     param:subcmd:try
     param:run
     if [ -z "$PARAM_SUBCMD" ]; then
-        ___x_cmd_gt_issue _param_help_doc
+        ___x_cmd_gitlab_issue _param_help_doc
         gt_log warn "subcmd not found. show help." >&2
         return 1
     fi
-    "___x_cmd_gt_issue_comment_$PARAM_SUBCMD" "$@"
+    "___x_cmd_gitlab_issue_comment_$PARAM_SUBCMD" "$@"
 }
 
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoIssuesNumberComments
-___x_cmd_gt_issue_comment_ls(){
+___x_cmd_gitlab_issue_comment_ls(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -255,17 +255,17 @@ options:
     --order         "order(asc、desc)"                                                   <>="asc"
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
     local ___gt_error_msg="Couldn't find any data by: ${owner_repo}"
-    ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/repos/${owner_repo}/issues/$number/comments" since order <<A
+    ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/repos/${owner_repo}/issues/$number/comments" since order <<A
         ___ui_table_json CommitId=.id IssueNumber=.target.issue.number Title=.target.issue.title User=.user.login Body=.body -- \$@
 A
 }
 
 # shellcheck disable=SC2086,SC2154
 # https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoIssuesNumberComments
-___x_cmd_gt_issue_comment_create(){
+___x_cmd_gitlab_issue_comment_create(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -278,7 +278,7 @@ options:
     local gen_gt_json
     gen_gt_json="$(param:option2json -repo -number)"
 
-    ___x_cmd_gt_http post "/v5/repos/${owner##*/}/${repo##*/}/issues/$number/comments" "$gen_gt_json" | \
+    ___x_cmd_gitlab_http post "/v5/repos/${owner##*/}/${repo##*/}/issues/$number/comments" "$gen_gt_json" | \
     {
         ___x_cmd_git_json_query_rename "$data" id=.target.issue.number title=.target.issue.title body=.body
         if [ -n "$id" ]; then
@@ -292,7 +292,7 @@ options:
 }
 
 # https://gitee.com/api/v5/swagger#/patchV5ReposOwnerRepoIssuesCommentsId
-___x_cmd_gt_issue_comment_update(){
+___x_cmd_gitlab_issue_comment_update(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -304,7 +304,7 @@ options:
     local gen_gt_json
     gen_gt_json="$(param:option2json -repo -id)"
 
-    ___x_cmd_gt_http patch "/v5/repos/${owner##*/}/${repo##*/}/issues/comments/${id}" "$(param:option2json)" | \
+    ___x_cmd_gitlab_http patch "/v5/repos/${owner##*/}/${repo##*/}/issues/comments/${id}" "$(param:option2json)" | \
     {
         ___x_cmd_git_json_query_rename "$data" id=.target.issue.number title=.target.issue.title body=.body
         if [ -n "$id" ]; then
@@ -319,7 +319,7 @@ options:
 
 # shellcheck disable=SC2181
 # https://gitee.com/api/v5/swagger#/deleteV5ReposOwnerRepoIssuesCommentsId
-___x_cmd_gt_issue_comment_del(){
+___x_cmd_gitlab_issue_comment_del(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -327,9 +327,9 @@ options:
     --id            "comments id"                                                        <>
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
     # TODO:http handle，delete repo return data is null.Status: 204 No Content
-    if ___x_cmd_gt_http delete "/v5/repos/${owner_repo}/issues/comments/${id}" >/dev/null; then
+    if ___x_cmd_gitlab_http delete "/v5/repos/${owner_repo}/issues/comments/${id}" >/dev/null; then
         ___x_cmd_ui_tf true  "Deleted comment successfully"
     else
         ___x_cmd_ui_tf false "Deleting comment failure by ${owner_repo} $id."

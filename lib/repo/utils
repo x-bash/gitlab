@@ -4,7 +4,7 @@
 ############################
 # Section 6: Repo Path & Clone
 ############################
-___x_cmd_gt_repo_url_http(){
+___x_cmd_gitlab_repo_url_http(){
     param:scope  ___x_cmd_gt
     param:dsl    '
 options:
@@ -14,16 +14,16 @@ options:
 
     local repo
     for repo in "$@"; do
-        printf "https://gitee.com/%s.git\n" "$(___x_cmd_gt_param_normalize_repo "$repo")"
+        printf "https://gitee.com/%s.git\n" "$(___x_cmd_gitlab_param_normalize_repo "$repo")"
     done
 }
 
-___x_cmd_gt_repo_url(){
+___x_cmd_gitlab_repo_url(){
     param:void
-    ___x_cmd_gt_repo_url_ssh ${1:+"$@"}
+    ___x_cmd_gitlab_repo_url_ssh ${1:+"$@"}
 }
 
-___x_cmd_gt_repo_url_ssh(){
+___x_cmd_gitlab_repo_url_ssh(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -33,31 +33,31 @@ options:
 
     local repo
     for repo in "$@"; do
-        printf "git@gitee.com:%s.git\n" "$(___x_cmd_gt_param_normalize_repo "$repo")"
+        printf "git@gitee.com:%s.git\n" "$(___x_cmd_gitlab_param_normalize_repo "$repo")"
     done
 }
 
-___x_cmd_gt_repo_clone(){
-    ___x_cmd_gt_repo_clone_ssh "$@" && return 0
-    ___x_cmd_gt_repo_clone_https "$@" && return 0
+___x_cmd_gitlab_repo_clone(){
+    ___x_cmd_gitlab_repo_clone_ssh "$@" && return 0
+    ___x_cmd_gitlab_repo_clone_https "$@" && return 0
     return $?
 }
 
 # shellcheck disable=SC2120
-___x_cmd_gt_repo_clone_ssh(){
+___x_cmd_gitlab_repo_clone_ssh(){
     param:void
-    git clone "$(___x_cmd_gt_repo_url_ssh "$@")"
+    git clone "$(___x_cmd_gitlab_repo_url_ssh "$@")"
 }
 
 # shellcheck disable=SC2120
-___x_cmd_gt_repo_clone_https(){
+___x_cmd_gitlab_repo_clone_https(){
     param:void
-    git clone "$(___x_cmd_gt_repo_url_http "$@")"
+    git clone "$(___x_cmd_gitlab_repo_url_http "$@")"
 }
 
 # https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoForks
 # TODO Not available Gitee return Not Found Project
-___x_cmd_gt_repo_fork(){
+___x_cmd_gitlab_repo_fork(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -67,7 +67,7 @@ options:
     param:run
 
     local owner_repo
-    owner_repo="$(___x_cmd_gt_param_normalize_repo "$repo")"
+    owner_repo="$(___x_cmd_gitlab_param_normalize_repo "$repo")"
 
-    ___x_cmd_gt_http post "https://gitee.com/api/v5/repos/${owner_repo}/forks" organization
+    ___x_cmd_gitlab_http post "https://gitee.com/api/v5/repos/${owner_repo}/forks" organization
 }

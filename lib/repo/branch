@@ -1,7 +1,7 @@
 # shellcheck shell=sh
 # shellcheck disable=SC2039,3043
-___x_cmd_gt_repo_branch(){
-    param:subcmd ___x_cmd_gt_repo_branch                        \
+___x_cmd_gitlab_repo_branch(){
+    param:subcmd ___x_cmd_gitlab_repo_branch                        \
         ls              "List repo branch list"                 \
         info            "Show the branch info"                  \
         add             "Add repo branch"                       \
@@ -11,14 +11,14 @@ ___x_cmd_gt_repo_branch(){
     param:run
 
     gt_log error "Subcmd Not Found."
-    ___x_cmd_gt_repo_branch _param_help_doc
+    ___x_cmd_gitlab_repo_branch _param_help_doc
     return 1
 }
 
 # Section: list & info
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoBranches
-___x_cmd_gt_repo_branch_ls(){
+___x_cmd_gitlab_repo_branch_ls(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -27,17 +27,17 @@ options:
     --page          "page number of the results to fetch."                               <>=1
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
     local ___gt_error_msg="Couldn't find any data by: ${owner_repo}"
-    ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/repos/${owner_repo}/branches" per_page page <<A
+    ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/repos/${owner_repo}/branches" per_page page <<A
         ___ui_table_json BranchName=.name Protected=.protected -- \$@
 A
 }
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoBranchesBranch
-___x_cmd_gt_repo_branch_info(){
+___x_cmd_gitlab_repo_branch_info(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -45,13 +45,13 @@ options:
     #2|--repo       "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
-    ___x_cmd_gt_http get "/v5/repos/${owner_repo}/branches/${branch}" | ___x_cmd_gt_repo_branch_info_status_handler
+    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/branches/${branch}" | ___x_cmd_gitlab_repo_branch_info_status_handler
 }
 
 # shellcheck disable=SC2154
-___x_cmd_gt_repo_branch_info_status_handler(){
+___x_cmd_gitlab_repo_branch_info_status_handler(){
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return
@@ -70,7 +70,7 @@ ___x_cmd_gt_repo_branch_info_status_handler(){
 # Section: add & default
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoBranches
-___x_cmd_gt_repo_branch_add(){
+___x_cmd_gitlab_repo_branch_add(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -79,10 +79,10 @@ options:
     --refs               "origin branch name"                                                 <>="master"
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
     # TODO:http handle，delete repo return data is null.Status: 204 No Content
-    if ___x_cmd_gt_http post "/v5/repos/${owner_repo}/branches" refs branch_name >/dev/null; then
+    if ___x_cmd_gitlab_http post "/v5/repos/${owner_repo}/branches" refs branch_name >/dev/null; then
         ___x_cmd_ui_tf true  "Add repo ${owner_repo} ${branch_name} brach successfully"
     else
         ___x_cmd_ui_tf false "Add repo failure" "owner_repo: $owner_repo" "branch: $branch_name" "refs: $refs"
@@ -91,19 +91,19 @@ options:
 }
 
 # shellcheck disable=SC2154
-___x_cmd_gt_repo_branch_default(){
+___x_cmd_gitlab_repo_branch_default(){
     param:dsl       '
 options:
     --repo                      "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName
     #1|--branch                 "branch name"                                                        <>
 '
     param:run
-    ___x_cmd_gt_repo_update --repo "$repo" --default_branch "$branch"
+    ___x_cmd_gitlab_repo_update --repo "$repo" --default_branch "$branch"
 }
 # EndSection
 
 # Section: protection
-___x_cmd_gt_repo_branch_protection(){
+___x_cmd_gitlab_repo_branch_protection(){
     param:dsl       '
 subcommand:
     set              "Set protection branch"
@@ -112,16 +112,16 @@ subcommand:
     param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ___x_cmd_gt_repo_branch_protection _param_help_doc
+        ___x_cmd_gitlab_repo_branch_protection _param_help_doc
         gt_log warn "Subcmd Not Found."
         return 0
     fi
 
-    "___x_cmd_gt_repo_branch_protection_$PARAM_SUBCMD" "$@"
+    "___x_cmd_gitlab_repo_branch_protection_$PARAM_SUBCMD" "$@"
 }
 
 # https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoBranchesBranchProtection
-___x_cmd_gt_repo_branch_protection_set(){
+___x_cmd_gitlab_repo_branch_protection_set(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -129,12 +129,12 @@ options:
     #2|--repo       "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
-    ___x_cmd_gt_http put "/v5/repos/${owner_repo}/branches/${branch}/protection" | \
-        ___x_cmd_gt_repo_branch_protection_set_status_handler
+    ___x_cmd_gitlab_param_init_owner_repo
+    ___x_cmd_gitlab_http put "/v5/repos/${owner_repo}/branches/${branch}/protection" | \
+        ___x_cmd_gitlab_repo_branch_protection_set_status_handler
 }
 
-___x_cmd_gt_repo_branch_protection_set_status_handler(){
+___x_cmd_gitlab_repo_branch_protection_set_status_handler(){
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return
@@ -150,7 +150,7 @@ ___x_cmd_gt_repo_branch_protection_set_status_handler(){
 }
 
 # https://gitee.com/api/v5/swagger#/deleteV5ReposOwnerRepoBranchesBranchProtection
-___x_cmd_gt_repo_branch_protection_unset(){
+___x_cmd_gitlab_repo_branch_protection_unset(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -158,10 +158,10 @@ options:
     #2|--repo       "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
     # TODO:http handle，delete repo return data is null.Status: 204 No Content
-    if ___x_cmd_gt_http delete "/v5/repos/${owner_repo}/branches/${branch}/protection" >/dev/null; then
+    if ___x_cmd_gitlab_http delete "/v5/repos/${owner_repo}/branches/${branch}/protection" >/dev/null; then
         ___x_cmd_ui_tf true  "Unset branch: $branch protection successfully"
     else
         ___x_cmd_ui_tf false "Unset branch protection failure: $owner_repo $branch"

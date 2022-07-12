@@ -1,9 +1,9 @@
 # shellcheck shell=sh
 # shellcheck disable=SC2039,3043
 
-___x_cmd_gt_repo(){
+___x_cmd_gitlab_repo(){
     param:scope         ___x_cmd_gt
-    param:subcmd ___x_cmd_gt_repo                                       \
+    param:subcmd ___x_cmd_gitlab_repo                                       \
         create          "Create repo"                                   \
         ls              "List repo of owner"                            \
         info            "Show detailed information of repo"             \
@@ -16,7 +16,7 @@ ___x_cmd_gt_repo(){
     param:subcmd:try
     param:run
 
-    ___x_cmd_gt_repo _param_help_doc
+    ___x_cmd_gitlab_repo _param_help_doc
     gt_log warn "Subcmd Not Found."
     return 1
 }
@@ -24,7 +24,7 @@ ___x_cmd_gt_repo(){
 # Section: create
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/postV5UserRepos
-___x_cmd_gt_repo_create(){
+___x_cmd_gitlab_repo_create(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 option:
@@ -58,13 +58,13 @@ option:
 
     for name in "$@"; do
         printf "%s" "${gen_gt_json}" | sed s/%%name%%/"${name##%/}"/g | \
-            ___x_cmd_gt_http post "/v5/user/repos" - | \
-            ___x_cmd_gt_repo_create_status_handler
+            ___x_cmd_gitlab_http post "/v5/user/repos" - | \
+            ___x_cmd_gitlab_repo_create_status_handler
     done
 }
 
 # shellcheck disable=SC2154
-___x_cmd_gt_repo_create_status_handler(){
+___x_cmd_gitlab_repo_create_status_handler(){
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return
@@ -82,7 +82,7 @@ ___x_cmd_gt_repo_create_status_handler(){
 # ORGANIZATION NAME
 # shellcheck disable=SC2154,SC2034
 # https://gitee.com/api/v5/swagger#/postV5OrgsOrgRepos
-___x_cmd_gt_org_repo_create(){
+___x_cmd_gitlab_org_repo_create(){
     # TODO: I don't know what does path means for an organization repo
     # path is null default repo name as path
     param:scope     ___x_cmd_gt
@@ -120,12 +120,12 @@ option:
     # TODO: owner may be personal
     for name in "$@"; do
         printf "%s" "${gen_gt_json}" | sed s/%%name%%/"${name##%/}"/g | \
-            ___x_cmd_gt_http post "/v5/orgs/$org/repos" - | \
-            ___x_cmd_gt_org_repo_create_status_handler
+            ___x_cmd_gitlab_http post "/v5/orgs/$org/repos" - | \
+            ___x_cmd_gitlab_org_repo_create_status_handler
     done
 }
 
-___x_cmd_gt_org_repo_create_status_handler(){
+___x_cmd_gitlab_org_repo_create_status_handler(){
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return
@@ -142,7 +142,7 @@ ___x_cmd_gt_org_repo_create_status_handler(){
 
 # https://gitee.com/api/v5/swagger#/postV5EnterprisesEnterpriseRepos
 # shellcheck disable=SC2154,SC2034
-___x_cmd_gt_enterprise_repo_create(){
+___x_cmd_gitlab_enterprise_repo_create(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -182,13 +182,13 @@ option:
 
     for name in "$@"; do
         printf "%s" "${gen_gt_json}" | sed s/%%name%%/"${name##%/}"/g | \
-            ___x_cmd_gt_http post "/v5/enterprises/${enterprise##*/}/repos" - | \
-            ___x_cmd_gt_enterprise_repo_create_status_handler
+            ___x_cmd_gitlab_http post "/v5/enterprises/${enterprise##*/}/repos" - | \
+            ___x_cmd_gitlab_enterprise_repo_create_status_handler
     done
     return 0
 }
 
-___x_cmd_gt_enterprise_repo_create_status_handler(){
+___x_cmd_gitlab_enterprise_repo_create_status_handler(){
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return
@@ -206,16 +206,16 @@ ___x_cmd_gt_enterprise_repo_create_status_handler(){
 
 # Section: list
 # shellcheck disable=SC2154,SC2145
-___x_cmd_gt_repo_ls(){
+___x_cmd_gitlab_repo_ls(){
     param:void
     local owner_type
     if [ $# -eq 0 ];then
         owner_type=user
     else
         local owner="$1"
-        owner_type="$(______x_cmd_gt_owner_type_query "$owner")"
+        owner_type="$(______x_cmd_gitlab_owner_type_query "$owner")"
     fi
-    ___x_cmd_gt_"${owner_type}"_repo ls "$@"
+    ___x_cmd_gitlab_"${owner_type}"_repo ls "$@"
 }
 # EndSection
 
@@ -223,7 +223,7 @@ ___x_cmd_gt_repo_ls(){
 
 # shellcheck disable=SC2154,SC2034
 # TODO: https://gitee.com/api/v5/swagger#/patchV5ReposOwnerRepo need to design
-___x_cmd_gt_repo_update(){
+___x_cmd_gitlab_repo_update(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -262,12 +262,12 @@ options:
             pull_requests_enabled=^no_pull_requests     lightweight_pr_enabled=^no_lightweight_pr  \
             no_online_edit=^no_online_edit)"
 
-    ___x_cmd_gt_param_init_owner_repo
-    printf "%s" "${gen_gt_json}" | ___x_cmd_gt_http patch "/v5/repos/${owner_repo}" - | \
-        ___x_cmd_gt_repo_update_status_handler
+    ___x_cmd_gitlab_param_init_owner_repo
+    printf "%s" "${gen_gt_json}" | ___x_cmd_gitlab_http patch "/v5/repos/${owner_repo}" - | \
+        ___x_cmd_gitlab_repo_update_status_handler
 }
 
-___x_cmd_gt_repo_update_status_handler(){
+___x_cmd_gitlab_repo_update_status_handler(){
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return
@@ -286,7 +286,7 @@ ___x_cmd_gt_repo_update_status_handler(){
 # Section: info
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepo
-___x_cmd_gt_repo_info(){
+___x_cmd_gitlab_repo_info(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -294,13 +294,13 @@ options:
 '
     param:run
 
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
-    ___x_cmd_gt_http get "/v5/repos/${owner_repo}" | ___x_cmd_gt_repo_info_status_handler
+    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}" | ___x_cmd_gitlab_repo_info_status_handler
 }
 
 # shellcheck disable=SC2154
-___x_cmd_gt_repo_info_status_handler() {
+___x_cmd_gitlab_repo_info_status_handler() {
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return
@@ -319,7 +319,7 @@ ___x_cmd_gt_repo_info_status_handler() {
 # Section: del & clear
 # https://gitee.com/api/v5/swagger#/deleteV5ReposOwnerRepo
 # shellcheck disable=SC2181,SC2154
-___x_cmd_gt_repo_rm(){
+___x_cmd_gitlab_repo_rm(){
     # TODO: -y force del
     param:scope     ___x_cmd_gt
     param:dsl       '
@@ -330,9 +330,9 @@ options:
 
     local i
     for i in "$@"; do
-        ___x_cmd_gt_param_normalize_repo "$i"
+        ___x_cmd_gitlab_param_normalize_repo "$i"
         # TODO:http handle，delete repo return data is null.Status: 204 No Content
-        if ___x_cmd_gt_http delete "/v5/repos/$owner_repo" >/dev/null; then
+        if ___x_cmd_gitlab_http delete "/v5/repos/$owner_repo" >/dev/null; then
             ___x_cmd_ui_tf true  "Deleting repo $i successfully"
         else
             ___x_cmd_ui_tf false "Deleting repo failure: $i. Probably because it desn't exists."
@@ -343,7 +343,7 @@ options:
 
 # shellcheck disable=SC2181
 # https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoClear
-___x_cmd_gt_repo_clear(){
+___x_cmd_gitlab_repo_clear(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -351,10 +351,10 @@ options:
 '
     param:run
 
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
 
     # TODO:http handle，delete repo return data is null.Status: 204 No Content
-    if ___x_cmd_gt_http put "/v5/repos/${owner_repo}/clear" >/dev/null; then
+    if ___x_cmd_gitlab_http put "/v5/repos/${owner_repo}/clear" >/dev/null; then
         ___x_cmd_ui_tf true   "Clearing repo ${owner_repo} successfully"
     else
         ___x_cmd_ui_tf false  "Clearing repo failure: ${owner_repo}"
@@ -367,7 +367,7 @@ options:
 
 # shellcheck disable=SC2154,SC2181
 # https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoReviewer
-___x_cmd_gt_repo_review(){
+___x_cmd_gitlab_repo_review(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -378,15 +378,15 @@ options:
     --testers_number      "number of people tested"                                            <>:NatureNumber="1"
 '
     param:run
-    ___x_cmd_gt_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_repo
     local gen_gt_json
     gen_gt_json="$(param:option2json)"
 
-    ___x_cmd_gt_http put "/v5/repos/${owner_repo}/reviewer" "$gen_gt_json" | ___x_cmd_gt_repo_review_status_handler
+    ___x_cmd_gitlab_http put "/v5/repos/${owner_repo}/reviewer" "$gen_gt_json" | ___x_cmd_gitlab_repo_review_status_handler
 }
 
 # shellcheck disable=SC2154
-___x_cmd_gt_repo_review_status_handler(){
+___x_cmd_gitlab_repo_review_status_handler(){
     if [ ! -t 1 ] || [ -n "$ENFORCE_JSON" ]; then
         cat
         return

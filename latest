@@ -25,7 +25,7 @@ ___x_cmd_gt(){
         token                            "set token"
     param:subcmd:try
 
-    param:subcmd ___x_cmd_gt_repo                                   \
+    param:subcmd ___x_cmd_gitlab_repo                                   \
         pr                               "pull request"             \
         release                          "release management"       \
         member                           "repo member"              \
@@ -42,21 +42,21 @@ ___x_cmd_gt(){
 ############################
 # Section 10: Instantiation
 ############################
-___x_cmd_gt_make(){
+___x_cmd_gitlab_make(){
     param:void
 
-    local O="___x_cmd_gt_${1:?Provide client name by O environment}"
+    local O="___x_cmd_gitlab_${1:?Provide client name by O environment}"
 
     ___x_cmd_http make  'https://gitee.com/api'
     ___x_cmd_http header put type  "application/json;charset=utf-8"
 
     local token
-    token="$(___x_cmd_gt_config_get "oauth_token")"
+    token="$(___x_cmd_gitlab_config_get "oauth_token")"
 
     if [ -n "$token" ]; then
         ___x_cmd_http header put Authorization "token $token"
         local user
-        user="$(___x_cmd_gt_current_owner)" || return 1
+        user="$(___x_cmd_gitlab_current_owner)" || return 1
         gt_log info "Hi $user! You've successfully authenticated."
         return 0
     fi
@@ -70,7 +70,7 @@ ___x_cmd_gt_make(){
 }
 
 if [ -z "$DO_NOT_INIT_GITEE_DEFAULT" ]; then
-    ___x_cmd_gt_make "GITEE_DEFAULT" && DO_NOT_INIT_GITEE_DEFAULT="true"
+    ___x_cmd_gitlab_make "GITEE_DEFAULT" && DO_NOT_INIT_GITEE_DEFAULT="true"
 fi
 
 xrc setmain ___x_cmd_gt

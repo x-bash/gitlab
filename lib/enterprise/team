@@ -2,8 +2,8 @@
 # shellcheck disable=SC2039,3043
 # TODO: need to update $O : https://gitee.com/api => https://api.gitee.com
 
-___x_cmd_gt_enterprise_team(){
-    param:subcmd ___x_cmd_gt_enterprise_team                        \
+___x_cmd_gitlab_enterprise_team(){
+    param:subcmd ___x_cmd_gitlab_enterprise_team                        \
         ls              "List enterprise team"                      \
         create          "Create a team"                             \
         info            "Show team info"                            \
@@ -15,18 +15,18 @@ ___x_cmd_gt_enterprise_team(){
     param:run
 
     if [ -z "$PARAM_SUBCMD" ]; then
-        ___x_cmd_gt_enterprise_team _param_help_doc
+        ___x_cmd_gitlab_enterprise_team _param_help_doc
         gt_log error "subcmd not found. show help."
         return 0
     fi
 
-    "___x_cmd_gt_enterprise_team_$PARAM_SUBCMD" "$@"
+    "___x_cmd_gitlab_enterprise_team_$PARAM_SUBCMD" "$@"
 }
 
 # Section: list & info
 # @see: https://gitee.com/api/v8/swagger#/getEnterpriseIdGroups
 # shellcheck disable=SC2154
-___x_cmd_gt_enterprise_team_ls(){
+___x_cmd_gitlab_enterprise_team_ls(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -45,12 +45,12 @@ options:
     --per_page            "per_page"                    <>:NatureNumber=20
 '
     param:run
-    ___x_cmd_gt_get_multi "/enterprises/${enterprise_id}/groups"     qt sort direction search scope
+    ___x_cmd_gitlab_get_multi "/enterprises/${enterprise_id}/groups"     qt sort direction search scope
 }
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v8/swagger#/getEnterpriseIdGroupsGroupId
-___x_cmd_gt_enterprise_team_info(){
+___x_cmd_gitlab_enterprise_team_info(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -62,10 +62,10 @@ options:
 
 '
     param:run
-    ___x_cmd_gt_http get "/enterprises/${enterprise_id}/groups/${group_id}" qt
+    ___x_cmd_gitlab_http get "/enterprises/${enterprise_id}/groups/${group_id}" qt
 }
 
-___x_cmd_gt_enterprise_team_repo() {
+___x_cmd_gitlab_enterprise_team_repo() {
     param:void
     :
 }
@@ -73,7 +73,7 @@ ___x_cmd_gt_enterprise_team_repo() {
 
 # Section: create & update & rm
 # https://gitee.com/api/v8/swagger#/postEnterpriseIdGroups
-___x_cmd_gt_enterprise_team_create(){
+___x_cmd_gitlab_enterprise_team_create(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -87,12 +87,12 @@ options:
     --user_ids            "team member id('\;'split)"   <>=""
 '
     param:run
-    ___x_cmd_gt_http post "/enterprises/${enterprise_id}/groups" path name public owner_id description user_ids
+    ___x_cmd_gitlab_http post "/enterprises/${enterprise_id}/groups" path name public owner_id description user_ids
 }
 
 # shellcheck disable=SC2034,SC2154
 # https://gitee.com/api/v8/swagger#/putEnterpriseIdGroupsGroupId
-___x_cmd_gt_enterprise_team_update(){
+___x_cmd_gitlab_enterprise_team_update(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -115,11 +115,11 @@ options:
         innerSource)    public=2 ;;
     esac
 
-    ___x_cmd_gt_http put json "/enterprises/${enterprise_id}/groups/${group_id}" public name description user_ids
+    ___x_cmd_gitlab_http put json "/enterprises/${enterprise_id}/groups/${group_id}" public name description user_ids
 }
 
 # TODO: strange parameters： https://gitee.com/api/v8/swagger#/deleteEnterpriseIdGroupsGroupId
-___x_cmd_gt_enterprise_team_rm(){
+___x_cmd_gitlab_enterprise_team_rm(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -131,25 +131,25 @@ options:
     --password            "user password"               <>=""
 '
     param:run
-    ___x_cmd_gt_http delete "/enterprises/${enterprise_id}/groups/${group_id}" validate_type sms_captcha password
+    ___x_cmd_gitlab_http delete "/enterprises/${enterprise_id}/groups/${group_id}" validate_type sms_captcha password
 }
 # EndSection
 
 # Section: member
-___x_cmd_gt_enterprise_team_member(){
-    param:subcmd ___x_cmd_gt_enterprise_team_member                 \
+___x_cmd_gitlab_enterprise_team_member(){
+    param:subcmd ___x_cmd_gitlab_enterprise_team_member                 \
         ls              "List enterprise team member"               \
         rm              "Remove member of team"
     param:subcmd:try
     param:run
 
-    ___x_cmd_gt_enterprise_team_member _param_help_doc
+    ___x_cmd_gitlab_enterprise_team_member _param_help_doc
     gt_log warn "Subcmd Not Found."
     return 1
 }
 
 # https://gitee.com/api/v8/swagger#/getEnterpriseIdGroupsGroupIdMembers
-___x_cmd_gt_enterprise_team_member_ls(){
+___x_cmd_gitlab_enterprise_team_member_ls(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 type:
@@ -169,11 +169,11 @@ options:
     --per_page            "per_page"                    <>:NatureNumber=20
 '
     param:run
-    ___x_cmd_gt_get_multi "/enterprises/${enterprise_id}/groups/${group_id}/members"  qt sort direction search
+    ___x_cmd_gitlab_get_multi "/enterprises/${enterprise_id}/groups/${group_id}/members"  qt sort direction search
 }
 
 # https://gitee.com/api/v8/swagger#/deleteEnterpriseIdGroupsGroupIdMembers
-___x_cmd_gt_enterprise_team_member_rm(){
+___x_cmd_gitlab_enterprise_team_member_rm(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -183,6 +183,6 @@ options:
     --user_ids            "team member id(','split)"    <>
 '
     param:run
-    ___x_cmd_gt_http delete "/enterprises/${enterprise_id}/groups/${group_id}/members" user_ids
+    ___x_cmd_gitlab_http delete "/enterprises/${enterprise_id}/groups/${group_id}/members" user_ids
 }
 # EndSection

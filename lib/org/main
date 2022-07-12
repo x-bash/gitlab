@@ -2,11 +2,11 @@
 # shellcheck disable=SC2039,3043
 
 # define lazy loader
-# ___x_cmd_definelazyloader   ___x_cmd_gt_org_member           gt/lib/org/member
+# ___x_cmd_definelazyloader   ___x_cmd_gitlab_org_member           gt/lib/org/member
 
-___x_cmd_gt_org(){
+___x_cmd_gitlab_org(){
     param:scope     ___x_cmd_gt
-    param:subcmd ___x_cmd_gt_org                            \
+    param:subcmd ___x_cmd_gitlab_org                            \
         ls                      "List all org"              \
         info                    "Show org information"      \
         create                  "Create org"                \
@@ -17,7 +17,7 @@ ___x_cmd_gt_org(){
     param:subcmd:try
     param:run
 
-    ___x_cmd_gt_org _param_help_doc
+    ___x_cmd_gitlab_org _param_help_doc
     gt_log warn "Subcmd Not Found."
     return 1
 }
@@ -25,7 +25,7 @@ ___x_cmd_gt_org(){
 # Section: list & info
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5UserOrgs
-___x_cmd_gt_org_ls(){
+___x_cmd_gitlab_org_ls(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -35,14 +35,14 @@ options:
 '
     param:run
 
-    ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/user/orgs" admin <<A
+    ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/user/orgs" admin <<A
         ___ui_table_json Id=.id Name=.name FollowCount=.follow_count Url=.repos_url -- \$@
 A
 }
 
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5OrgsOrg
-___x_cmd_gt_org_info(){
+___x_cmd_gitlab_org_info(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -50,7 +50,7 @@ options:
 '
     param:run
 
-    ___x_cmd_gt_http get "/v5/orgs/${1:?Provide organization}" | \
+    ___x_cmd_gitlab_http get "/v5/orgs/${1:?Provide organization}" | \
     {
         ___x_cmd_git_json_query_rename id=.id name=.name public=.public follow_count=.follow_count owner=.owner.name
         if [ -n "$id" ]; then
@@ -67,7 +67,7 @@ options:
 # It is very rare TODO: batch?
 # shellcheck disable=SC2181
 # https://gitee.com/api/v5/swagger#/postV5UsersOrganization
-___x_cmd_gt_org_create(){
+___x_cmd_gitlab_org_create(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -83,7 +83,7 @@ options:
     name="$1"
     gen_gt_json="$(param:option2json +name)"
 
-    ___x_cmd_gt_http post "/v5/users/organization" "$gen_gt_json" | \
+    ___x_cmd_gitlab_http post "/v5/users/organization" "$gen_gt_json" | \
     {
         ___x_cmd_git_json_query_rename id=.id
         if [ -n "$id" ]; then
@@ -97,20 +97,20 @@ options:
 # EndSection
 
 # Section: org repo
-___x_cmd_gt_org_repo(){
-    param:subcmd ___x_cmd_gt_org_repo           \
+___x_cmd_gitlab_org_repo(){
+    param:subcmd ___x_cmd_gitlab_org_repo           \
         ls          "list repo"                 \
         create      "org repo create"
     param:subcmd:try
     param:run
 
-    ___x_cmd_gt_org_repo _param_help_doc
+    ___x_cmd_gitlab_org_repo _param_help_doc
     gt_log warn "Subcmd Not Found."
     return 1
 }
 
 # https://gitee.com/api/v5/swagger#/getV5OrgsOrgRepos
-___x_cmd_gt_org_repo_ls(){
+___x_cmd_gitlab_org_repo_ls(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -124,7 +124,7 @@ options:
     gen_gt_json="$(param:option2json -page -per_page)"
 
     local ___gt_error_msg="Couldn't find any data by: ${1}"
-    ___gt_ui_mutual ___x_cmd_gt_get_multi "/v5/orgs/$1/repos" type <<A
+    ___gt_ui_mutual ___x_cmd_gitlab_get_multi "/v5/orgs/$1/repos" type <<A
         ___ui_table_json Id=.id Name=.name public=.public OwnerName=.owner.name DefaultBranch=.default_branch \
             OpenIssuesCount=.open_issues_count license=.license Url=.html_url -- \$@
 A
@@ -134,7 +134,7 @@ A
 # Section: quit
 # shellcheck disable=SC2181
 # https://gitee.com/api/v5/swagger#/deleteV5UserMembershipsOrgsOrg
-___x_cmd_gt_org_quit(){
+___x_cmd_gitlab_org_quit(){
     param:scope     ___x_cmd_gt
     param:dsl       '
 options:
@@ -146,7 +146,7 @@ options:
 
     for org in "$@"; do
         # TODO:http handle，delete repo return data is null.Status: 204 No Content
-        if ___x_cmd_gt_http delete "/v5/user/memberships/orgs/${org##*/}" >/dev/null; then
+        if ___x_cmd_gitlab_http delete "/v5/user/memberships/orgs/${org##*/}" >/dev/null; then
             gt_log info  "Quit $org organization successfully."
         else
             gt_log error "Quit $org organization failure"

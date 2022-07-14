@@ -31,7 +31,7 @@ ___x_cmd_gitlab_current_repo(){
 }
 
 # shellcheck disable=SC2120
-# https://gitee.com/api/v5/swagger#/getV5User
+# https://gitee.com/api/swagger#/getV5User
 ___x_cmd_gitlab_current_owner(){
     param:void
     local O="${O:-___x_cmd_gitlab_GITEE_DEFAULT}"
@@ -48,7 +48,7 @@ ___x_cmd_gitlab_current_owner(){
     owner="$(___x_cmd_gitlab_default get "gitee_$O" owner)"
     [ -n "$owner" ] && printf "%s" "$owner" && return 0
 
-    ___X_CMD_GITEE_DEFAULT_OWNER="$(___x_cmd_gitlab_http get "/v5/user" | ___x_cmd_git_json_query ".login")"
+    ___X_CMD_GITEE_DEFAULT_OWNER="$(___x_cmd_gitlab_http get "/user" | ___x_cmd_git_json_query ".login")"
     if [ -n "$___X_CMD_GITEE_DEFAULT_OWNER" ];then
         ___x_cmd_gitlab_config_set  "user" "$___X_CMD_GITEE_DEFAULT_OWNER" 1>/dev/null 2>&1
         printf "%s" "$___X_CMD_GITEE_DEFAULT_OWNER"

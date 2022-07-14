@@ -24,7 +24,7 @@ ___x_cmd_gitlab_issue(){
 
 
 # shellcheck disable=SC2154,SC2034
-# https://gitee.com/api/v5/swagger#/postV5ReposOwnerIssues
+# https://gitee.com/api/swagger#/postV5ReposOwnerIssues
 ___x_cmd_gitlab_issue_create(){
     param:scope         ___x_cmd_gitlab
     param:dsl      '
@@ -46,7 +46,7 @@ options:
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json security_hole=^^security issue_type=type -security -type)"
 
-    ___x_cmd_gitlab_http post "/v5/repos/${repo##*/}/issues" "$gen_gitlab_json" | \
+    ___x_cmd_gitlab_http post "/repos/${repo##*/}/issues" "$gen_gitlab_json" | \
     {
         ___x_cmd_git_json_query_rename id=.number title=.title html_url=.html_url
         if [ -n "$id" ]; then
@@ -60,7 +60,7 @@ options:
 }
 
 # shellcheck disable=SC2154,SC2034
-# https://gitee.com/api/v5/swagger#/patchV5ReposOwnerIssuesNumber
+# https://gitee.com/api/swagger#/patchV5ReposOwnerIssuesNumber
 ___x_cmd_gitlab_issue_update(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -85,7 +85,7 @@ options:
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json issue_type=type security_hole=^^security -security -type)"
 
-    ___x_cmd_gitlab_http patch "/v5/repos/${owner##*/}/issues/${number}" "$gen_gitlab_json" | \
+    ___x_cmd_gitlab_http patch "/repos/${owner##*/}/issues/${number}" "$gen_gitlab_json" | \
     {
         ___x_cmd_git_json_query_rename id=.number state=.state html_url=.html_url
         if [ -n "$id" ]; then
@@ -99,7 +99,7 @@ options:
 }
 
 # shellcheck disable=SC2154
-# https://gitee.com/api/v5/swagger#/getV5ReposOwnerIssuesNumberOperateLogs
+# https://gitee.com/api/swagger#/getV5ReposOwnerIssuesNumberOperateLogs
 ___x_cmd_gitlab_issue_logs(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -112,14 +112,14 @@ options:
     ___x_cmd_gitlab_param_init_owner_repo
 
     local ___gitlab_error_msg="Couldn't find any data by: $repo $number"
-    ___gitlab_ui_mutual ___x_cmd_gitlab_http get "/v5/repos/${owner_repo##*/}/issues/${number}/operate_logs" repo sort <<A
+    ___gitlab_ui_mutual ___x_cmd_gitlab_http get "/repos/${owner_repo##*/}/issues/${number}/operate_logs" repo sort <<A
         ___ui_table_json Time=.created_at User=.user.login Type=.action_type Content=.content -- \$@
 A
 }
 
 # shellcheck shell=sh
 # shellcheck disable=SC2039,3043,SC2154
-# https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoIssuesComments
+# https://gitee.com/api/swagger#/getV5ReposOwnerRepoIssuesComments
 ___x_cmd_gitlab_repo_issue(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -146,12 +146,12 @@ options:
     gen_gitlab_json="$(param:option2json -repo -page -per_page)"
 
     if [ -z "$number" ]; then
-        ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/v5/repos/${owner_repo}/issues" state labels milestone \
+        ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/repos/${owner_repo}/issues" state labels milestone \
             assignee creator program sort direction number <<A
         IssueNumber=.number Title=.title State=.issue_state Assigner=.assignee.name Body=.body -- \$@
 A
     else
-        ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/issues/${number}" | \
+        ___x_cmd_gitlab_http get "/repos/${owner_repo}/issues/${number}" | \
         {
             ___x_cmd_gitlab_json_query_rename "$data" id=.number title=.title state=.state assignee=.assignee.name
             if [ -n "$id" ]; then
@@ -167,7 +167,7 @@ A
 }
 
 # shellcheck disable=SC2154
-# https://gitee.com/api/v5/swagger#/getV5OrgsOrgIssues
+# https://gitee.com/api/swagger#/getV5OrgsOrgIssues
 ___x_cmd_gitlab_org_issue(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -187,7 +187,7 @@ options:
     gen_gitlab_json="$(param:option2json -org -page -per_page)"
 
     local ___gitlab_error_msg="Couldn't find any data by: ${org}"
-    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/v5/orgs/${org##*/}/issues" filter state labels \
+    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/orgs/${org##*/}/issues" filter state labels \
         sort direction since page per_page <<A
         ___ui_table_json IssueNumber=.number State=.issue_state Assigner=.assignee.name \
             Repository=.repository.full_name Type=.issue_type Title=.title Url=.html_url -- \$@
@@ -195,7 +195,7 @@ A
 }
 
 # shellcheck disable=SC2154
-# https://gitee.com/api/v5/swagger#/getV5EnterprisesEnterpriseIssues
+# https://gitee.com/api/swagger#/getV5EnterprisesEnterpriseIssues
 ___x_cmd_gitlab_enterprise_issue(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -216,7 +216,7 @@ options:
     param:run
 
     local ___gitlab_error_msg="Couldn't find any data by: ${enterprise}"
-    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/v5/enterprises/${enterprise##*/}/issues" filter state labels sort direction \
+    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/enterprises/${enterprise##*/}/issues" filter state labels sort direction \
         milestone assignee creator program <<A
         ___ui_table_json IssueNumber=.number State=.issue_state Assigner=.assignee.name AssignerMarkName=.assignee.remark \
             Repository=.repository.full_name Type=.issue_type Title=.title Url=.html_url -- \$@
@@ -242,7 +242,7 @@ ___x_cmd_gitlab_issue_comment(){
     "___x_cmd_gitlab_issue_comment_$PARAM_SUBCMD" "$@"
 }
 
-# https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoIssuesNumberComments
+# https://gitee.com/api/swagger#/getV5ReposOwnerRepoIssuesNumberComments
 ___x_cmd_gitlab_issue_comment_ls(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -258,13 +258,13 @@ options:
     ___x_cmd_gitlab_param_init_owner_repo
 
     local ___gitlab_error_msg="Couldn't find any data by: ${owner_repo}"
-    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/v5/repos/${owner_repo}/issues/$number/comments" since order <<A
+    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/repos/${owner_repo}/issues/$number/comments" since order <<A
         ___ui_table_json CommitId=.id IssueNumber=.target.issue.number Title=.target.issue.title User=.user.login Body=.body -- \$@
 A
 }
 
 # shellcheck disable=SC2086,SC2154
-# https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoIssuesNumberComments
+# https://gitee.com/api/swagger#/postV5ReposOwnerRepoIssuesNumberComments
 ___x_cmd_gitlab_issue_comment_create(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -278,7 +278,7 @@ options:
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json -repo -number)"
 
-    ___x_cmd_gitlab_http post "/v5/repos/${owner##*/}/${repo##*/}/issues/$number/comments" "$gen_gitlab_json" | \
+    ___x_cmd_gitlab_http post "/repos/${owner##*/}/${repo##*/}/issues/$number/comments" "$gen_gitlab_json" | \
     {
         ___x_cmd_git_json_query_rename "$data" id=.target.issue.number title=.target.issue.title body=.body
         if [ -n "$id" ]; then
@@ -291,7 +291,7 @@ options:
     }
 }
 
-# https://gitee.com/api/v5/swagger#/patchV5ReposOwnerRepoIssuesCommentsId
+# https://gitee.com/api/swagger#/patchV5ReposOwnerRepoIssuesCommentsId
 ___x_cmd_gitlab_issue_comment_update(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -304,7 +304,7 @@ options:
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json -repo -id)"
 
-    ___x_cmd_gitlab_http patch "/v5/repos/${owner##*/}/${repo##*/}/issues/comments/${id}" "$(param:option2json)" | \
+    ___x_cmd_gitlab_http patch "/repos/${owner##*/}/${repo##*/}/issues/comments/${id}" "$(param:option2json)" | \
     {
         ___x_cmd_git_json_query_rename "$data" id=.target.issue.number title=.target.issue.title body=.body
         if [ -n "$id" ]; then
@@ -318,7 +318,7 @@ options:
 }
 
 # shellcheck disable=SC2181
-# https://gitee.com/api/v5/swagger#/deleteV5ReposOwnerRepoIssuesCommentsId
+# https://gitee.com/api/swagger#/deleteV5ReposOwnerRepoIssuesCommentsId
 ___x_cmd_gitlab_issue_comment_del(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -329,7 +329,7 @@ options:
     param:run
     ___x_cmd_gitlab_param_init_owner_repo
     # TODO:http handle，delete repo return data is null.Status: 204 No Content
-    if ___x_cmd_gitlab_http delete "/v5/repos/${owner_repo}/issues/comments/${id}" >/dev/null; then
+    if ___x_cmd_gitlab_http delete "/repos/${owner_repo}/issues/comments/${id}" >/dev/null; then
         ___x_cmd_ui_tf true  "Deleted comment successfully"
     else
         ___x_cmd_ui_tf false "Deleting comment failure by ${owner_repo} $id."

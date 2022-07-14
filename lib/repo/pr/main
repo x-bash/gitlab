@@ -47,7 +47,7 @@ options:
     param:run
     ___x_cmd_gitlab_param_init_owner_repo
 
-    ___gitlab_ui_mutual ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls" state head base sort since direction milestone_number \
+    ___gitlab_ui_mutual ___x_cmd_gitlab_http get "/repos/${owner_repo}/pulls" state head base sort since direction milestone_number \
         labels page per_page <<A
             ___ui_table_json Id=.id Title=.title Body=.body User=.user.login TargetBranch=.base.ref SourceBranch=.head.ref \
                 CreateTime=.created_at UpdateTime=.updated_at Url=.html_url -- \$@
@@ -78,7 +78,7 @@ options:
 
     ___parse_pr_init_owner_repo_and_pr
 
-    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls/$pr"
+    ___x_cmd_gitlab_http get "/repos/${owner_repo}/pulls/$pr"
 }
 
 
@@ -94,7 +94,7 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls/$pr/operate_logs" sort
+    ___x_cmd_gitlab_http get "/repos/${owner_repo}/pulls/$pr/operate_logs" sort
 }
 
 ___x_cmd_gitlab_repo_pr_commit(){
@@ -106,7 +106,7 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls/$pr/commits"
+    ___x_cmd_gitlab_http get "/repos/${owner_repo}/pulls/$pr/commits"
 }
 
 ___x_cmd_gitlab_repo_pr_view(){
@@ -154,7 +154,7 @@ options:
     local title
     local state
     local html_url
-    data="$(___x_cmd_gitlab_http post "/v5/repos/$owner_repo/pulls" title head base body milestone_number \
+    data="$(___x_cmd_gitlab_http post "/repos/$owner_repo/pulls" title head base body milestone_number \
         labels issue assignees testers assignees_number testers_number prune_source_branch)"
     ___x_cmd_gitlab_json_query_rename "$data" title=.title state=.state html_url=.html_url
     if [ -n "$title" ];then
@@ -186,7 +186,7 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gitlab_http patch "/v5/repos/${owner_repo}/pulls/$pr" title body milestone_number\
+    ___x_cmd_gitlab_http patch "/repos/${owner_repo}/pulls/$pr" title body milestone_number\
         labels assignees_number testers_number state
 }
 
@@ -205,7 +205,7 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gitlab_http put json "/v5/repos/${owner_repo}/pulls/$pr/merge"  merge_method \
+    ___x_cmd_gitlab_http put json "/repos/${owner_repo}/pulls/$pr/merge"  merge_method \
         prune_source_branch title description
 }
 

@@ -12,22 +12,8 @@ xrc:inner:lib gitlab
 
 x log init gitlab
 ___x_cmd_gitlab(){
-    param:subcmd ___x_cmd_gitlab                                        \
-        repo                             "repo command"             \
-        issue                            "issue"                    \
-        current                          "set current owner, repo"  \
-        enterprise                       "manage enterprise"        \
-        org                              "manage org"               \
-        user                             "user"                     \
-        config                           "save, load, which"        \
-        token                            "set token"
-    param:subcmd:try
-
-    param:subcmd ___x_cmd_gitlab_repo                                   \
-        pr                               "pull request"             \
-        release                          "release management"       \
-        member                           "repo member"              \
-        tag                              "repo tag"
+    param:subcmd ___x_cmd_gitlab                                    \
+        user                             "user"
     param:subcmd:try
     param:run
 
@@ -45,7 +31,7 @@ ___x_cmd_gitlab_make(){
 
     local O="___x_cmd_gitlab_${1:?Provide client name by O environment}"
 
-    ___x_cmd_http make  'https://gitee.com/api'
+    ___x_cmd_http make  'https://gitlab.example.com/api/v4'
     ___x_cmd_http header put type  "application/json;charset=utf-8"
 
     local token

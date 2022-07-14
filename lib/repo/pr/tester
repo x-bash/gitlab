@@ -16,7 +16,7 @@ ___x_cmd_gitlab_repo_pr_testers(){
     return 1
 }
 
-# https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoPullsNumberTesters
+# https://gitee.com/api/swagger#/postV5ReposOwnerRepoPullsNumberTesters
 ___x_cmd_gitlab_repo_pr_testers_add(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -27,10 +27,10 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gitlab_http post "/v5/repos/${owner_repo}/pulls/$pr/testers" testers
+    ___x_cmd_gitlab_http post "/repos/${owner_repo}/pulls/$pr/testers" testers
 }
 
-# https://gitee.com/api/v5/swagger#/deleteV5ReposOwnerRepoPullsNumberTesters
+# https://gitee.com/api/swagger#/deleteV5ReposOwnerRepoPullsNumberTesters
 ___x_cmd_gitlab_repo_pr_testers_del(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -41,10 +41,10 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gitlab_http delete "/v5/repos/${owner_repo}/pulls/$pr/testers?testers=$testers"
+    ___x_cmd_gitlab_http delete "/repos/${owner_repo}/pulls/$pr/testers?testers=$testers"
 }
 
-# https://gitee.com/api/v5/swagger#/patchV5ReposOwnerRepoPullsNumberTesters
+# https://gitee.com/api/swagger#/patchV5ReposOwnerRepoPullsNumberTesters
 ___x_cmd_gitlab_repo_pr_testers_reset(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -56,7 +56,7 @@ options:
 
     ___parse_pr_init_owner_repo_and_pr
 
-    ___x_cmd_gitlab_http patch "/v5/repos/${owner_repo}/pulls/$pr/testers" reset_all
+    ___x_cmd_gitlab_http patch "/repos/${owner_repo}/pulls/$pr/testers" reset_all
 }
 
 #
@@ -71,7 +71,7 @@ options:
 
     ___parse_pr_init_owner_repo_and_pr
 
-    ___x_cmd_gitlab_http post "/v5/repos/${owner_repo}/pulls/$pr/test" force
+    ___x_cmd_gitlab_http post "/repos/${owner_repo}/pulls/$pr/test" force
 }
 
 

@@ -6,7 +6,7 @@
 
 ___x_cmd_gitlab_user(){
     param:scope     ___x_cmd_gitlab
-    param:subcmd ___x_cmd_gitlab_user                   \
+    param:subcmd ___x_cmd_gitlab_user               \
         info        "Show information"              \
         repo        "List all repos"                \
         email       "Show user email"               \
@@ -23,7 +23,7 @@ ___x_cmd_gitlab_user(){
 # Section: info repo email issue
 
 # shellcheck disable=SC2154
-# https://gitee.com/api/v5/swagger#/getV5UsersUsername
+# https://gitee.com/api/swagger#/getV5UsersUsername
 ___x_cmd_gitlab_user_info(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -35,9 +35,9 @@ options:
     local owner="$1"
     local data
     if [ -z "$owner" ]; then
-        data=$(___x_cmd_gitlab_http get "/v5/user" )
+        data=$(___x_cmd_gitlab_http get "/user" )
     else
-        data=$(___x_cmd_gitlab_http get "/v5/users/$1")
+        data=$(___x_cmd_gitlab_http get "/users/$1")
     fi
 
     [ ! -t 1 ] && printf "%s" "$data" && return 0
@@ -54,7 +54,7 @@ options:
     }
 }
 
-# https://gitee.com/api/v5/swagger#/getV5UserRepos
+# https://gitee.com/api/swagger#/getV5UserRepos
 ___x_cmd_gitlab_user_repo(){
     param:scope     ___x_cmd_gitlab
     param:subcmd ___x_cmd_gitlab_user_repo                  \
@@ -87,9 +87,9 @@ options:
 
     local url
     if [ "$#" -gitlab 0 ]; then
-        url="/v5/users/$1/repos"
+        url="/users/$1/repos"
     else
-        url="/v5/user/repos"
+        url="/user/repos"
     fi
 
     ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "$url" visibility affiliation sort direction <<A
@@ -97,7 +97,7 @@ options:
 A
 }
 
-# https://gitee.com/api/v5/swagger#/getV5Emails
+# https://gitee.com/api/swagger#/getV5Emails
 ___x_cmd_gitlab_user_email(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -107,12 +107,12 @@ options:
 '
     param:run
 
-    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/v5/emails" <<A
+    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/emails" <<A
         ___ui_table_json Email=.email State=.state -- \$@
 A
 }
 
-# https://gitee.com/api/v5/swagger#/getV5UserIssues
+# https://gitee.com/api/swagger#/getV5UserIssues
 ___x_cmd_gitlab_user_issue(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -136,7 +136,7 @@ options:
 '
     param:run
 
-    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/v5/user/issues" filter state direction labels \
+    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/user/issues" filter state direction labels \
         since schedule deadline created_at finished_at <<A
             ___ui_table_json ID=.number State=.issue_state Assigner=.assignee.name \
                 Repo=.repository.full_name Type=.issue_type Title=.title Url=.html_url -- \$@
@@ -163,7 +163,7 @@ ___x_cmd_gitlab_user_key(){
     return 1
 }
 
-# https://gitee.com/api/v5/swagger#/getV5UserKeys
+# https://gitee.com/api/swagger#/getV5UserKeys
 ___x_cmd_gitlab_user_key_ls(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -173,13 +173,13 @@ options:
 '
     param:run
 
-    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/v5/user/keys" <<A
+    ___gitlab_ui_mutual ___x_cmd_gitlab_get_multi "/user/keys" <<A
         ___ui_table_json Id=.id Title=.title Key=.key Url=.url -- \$@
 A
 }
 
 # shellcheck disable=SC2154
-# https://gitee.com/api/v5/swagger#/getV5UserKeysId
+# https://gitee.com/api/swagger#/getV5UserKeysId
 ___x_cmd_gitlab_user_key_get(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -200,7 +200,7 @@ options:
 }
 
 # shellcheck disable=SC2181
-# https://gitee.com/api/v5/swagger#/deleteV5UserKeysId
+# https://gitee.com/api/swagger#/deleteV5UserKeysId
 ___x_cmd_gitlab_user_key_del(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -210,7 +210,7 @@ options:
     param:run
 
     # TODO:http handle，delete repo return data is null.Status: 204 No Content
-    if ___x_cmd_gitlab_http delete "/v5/user/keys/$id" >/dev/null; then
+    if ___x_cmd_gitlab_http delete "/user/keys/$id" >/dev/null; then
         ___x_cmd_ui_tf true  "Deleted key successfully"
     else
         ___x_cmd_ui_tf false "Deleting key failure by $id."
@@ -219,7 +219,7 @@ options:
 }
 
 # shellcheck disable=SC2154
-# https://gitee.com/api/v5/swagger#/postV5UserKeys
+# https://gitee.com/api/swagger#/postV5UserKeys
 ___x_cmd_gitlab_user_key_add(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
@@ -231,7 +231,7 @@ options:
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json)"
 
-    ___x_cmd_gitlab_http post "/v5/user/keys" "$gen_gitlab_json" | \
+    ___x_cmd_gitlab_http post "/user/keys" "$gen_gitlab_json" | \
     {
         ___x_cmd_git_json_query_rename "$data" id=.id title=.title key=.key
         if [ -n "$id" ]; then

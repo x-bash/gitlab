@@ -2,7 +2,7 @@
 # shellcheck disable=SC2039,3043
 
 ___x_cmd_gitlab_repo_pr_assign(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:subcmd ___x_cmd_gitlab_repo_pr_assign             \
         add             "Add assignee"                  \
         del             "Del assignee"                  \
@@ -12,12 +12,12 @@ ___x_cmd_gitlab_repo_pr_assign(){
     param:run
 
     ___x_cmd_gitlab_repo_pr_assign _param_help_doc
-    gt_log warn "Subcmd Not Found."
+    gitlab_log warn "Subcmd Not Found."
     return 1
 }
 
 ___x_cmd_gitlab_repo_pr_assign_add(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr             "pr id"                                                     <>:NatureNumber
@@ -32,7 +32,7 @@ options:
 }
 
 ___x_cmd_gitlab_repo_pr_assign_del(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr             "pr id"                                                     <>:NatureNumber
@@ -45,7 +45,7 @@ options:
 }
 
 ___x_cmd_gitlab_repo_pr_assign_reset(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr             "pr id"                 <>:NatureNumber
@@ -60,7 +60,7 @@ options:
 }
 
 ___x_cmd_gitlab_repo_pr_assign_review(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr         "pr id"                     <>:NatureNumber

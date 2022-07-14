@@ -2,7 +2,7 @@
 # shellcheck disable=SC2039,3043
 
 ___x_cmd_gitlab_repo_pr_testers(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:subcmd ___x_cmd_gitlab_repo_pr_testers                \
         add             "Add assignee"                      \
         del             "Del assignee"                      \
@@ -12,13 +12,13 @@ ___x_cmd_gitlab_repo_pr_testers(){
     param:run
 
     ___x_cmd_gitlab_repo_pr_testers _param_help_doc
-    gt_log warn "Subcmd Not Found."
+    gitlab_log warn "Subcmd Not Found."
     return 1
 }
 
 # https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoPullsNumberTesters
 ___x_cmd_gitlab_repo_pr_testers_add(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr         "pr id"                     <>
@@ -32,7 +32,7 @@ options:
 
 # https://gitee.com/api/v5/swagger#/deleteV5ReposOwnerRepoPullsNumberTesters
 ___x_cmd_gitlab_repo_pr_testers_del(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr         "pr id"                     <>:NatureNumber
@@ -46,7 +46,7 @@ options:
 
 # https://gitee.com/api/v5/swagger#/patchV5ReposOwnerRepoPullsNumberTesters
 ___x_cmd_gitlab_repo_pr_testers_reset(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr         "pr id"                     <>:NatureNumber
@@ -61,7 +61,7 @@ options:
 
 #
 ___x_cmd_gitlab_repo_pr_testers_test(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr         "pr id"                     <>:NatureNumber

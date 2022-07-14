@@ -13,7 +13,7 @@ ___x_cmd_gitlab_current(){
     param:run
 
     ___x_cmd_gitlab_current _param_help_doc
-    gt_log warn "Subcmd Not Found."
+    gitlab_log warn "Subcmd Not Found."
     return 1
 }
 
@@ -53,7 +53,7 @@ ___x_cmd_gitlab_current_owner(){
         ___x_cmd_gitlab_config_set  "user" "$___X_CMD_GITEE_DEFAULT_OWNER" 1>/dev/null 2>&1
         printf "%s" "$___X_CMD_GITEE_DEFAULT_OWNER"
     else
-        gt_log error "get current owner fail"
+        gitlab_log error "get current owner fail"
         return 1
     fi
 }
@@ -73,7 +73,7 @@ ___x_cmd_gitlab_current_owner_type(){
     if [ -z "$data" ]; then
         owner="$(___x_cmd_gitlab_current_owner)"
         if [ -z "$owner" ]; then
-            gt_log error "Owner is empty. While owner not set."
+            gitlab_log error "Owner is empty. While owner not set."
             return 1
         fi
 

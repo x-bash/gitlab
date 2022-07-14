@@ -13,13 +13,13 @@ ___x_cmd_gitlab_repo_page(){
     param:run
 
     ___x_cmd_gitlab_repo_page _param_help_doc
-    gt_log warn "Subcmd Not Found."
+    gitlab_log warn "Subcmd Not Found."
     return 1
 }
 
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoPages
 ___x_cmd_gitlab_repo_page_info(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     --repo              "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName
@@ -35,7 +35,7 @@ options:
 # Even we could use it
 # {"message":"非付费pages，不允许部署 pages"}
 ___x_cmd_gitlab_repo_page_build(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     --repo              "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName

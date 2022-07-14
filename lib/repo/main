@@ -2,7 +2,7 @@
 # shellcheck disable=SC2039,3043
 
 ___x_cmd_gitlab_repo(){
-    param:scope         ___x_cmd_gt
+    param:scope         ___x_cmd_gitlab
     param:subcmd ___x_cmd_gitlab_repo                                       \
         create          "Create repo"                                   \
         ls              "List repo of owner"                            \
@@ -17,7 +17,7 @@ ___x_cmd_gitlab_repo(){
     param:run
 
     ___x_cmd_gitlab_repo _param_help_doc
-    gt_log warn "Subcmd Not Found."
+    gitlab_log warn "Subcmd Not Found."
     return 1
 }
 
@@ -25,7 +25,7 @@ ___x_cmd_gitlab_repo(){
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/postV5UserRepos
 ___x_cmd_gitlab_repo_create(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 option:
     #n                      "repo names"                    <>:RepoName
@@ -42,7 +42,7 @@ option:
     --no_auto_init          "Not auto init README"
 '
     param:run
-    [ $# -ne 0 ] || { gt_log error "Please provide repo name"; return 1; }
+    [ $# -ne 0 ] || { gitlab_log error "Please provide repo name"; return 1; }
 
     local private
     case "$access" in
@@ -50,14 +50,14 @@ option:
         private)    private=true    ;;
     esac
     local name="%%name%%"
-    local gen_gt_json
-    gen_gt_json="$(
+    local gen_gitlab_json
+    gen_gitlab_json="$(
         param:option2json +name +private -access \
             has_issues=^no_issue        has_wiki=^no_wiki \
             can_comment=^no_comment     auto_init=^^no_auto_init)"
 
     for name in "$@"; do
-        printf "%s" "${gen_gt_json}" | sed s/%%name%%/"${name##%/}"/g | \
+        printf "%s" "${gen_gitlab_json}" | sed s/%%name%%/"${name##%/}"/g | \
             ___x_cmd_gitlab_http post "/v5/user/repos" - | \
             ___x_cmd_gitlab_repo_create_status_handler
     done
@@ -85,7 +85,7 @@ ___x_cmd_gitlab_repo_create_status_handler(){
 ___x_cmd_gitlab_org_repo_create(){
     # TODO: I don't know what does path means for an organization repo
     # path is null default repo name as path
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 option:
     #n                      "repo names"
@@ -111,15 +111,15 @@ option:
     esac
 
     local name="%%name%%"
-    local gen_gt_json
-    gen_gt_json="$(
+    local gen_gitlab_json
+    gen_gitlab_json="$(
         param:option2json +name +private -access \
             has_issues=^no_issue            has_wiki=^no_wiki \
             can_comment=^no_comment         auto_init=^^no_auto_init )"
 
     # TODO: owner may be personal
     for name in "$@"; do
-        printf "%s" "${gen_gt_json}" | sed s/%%name%%/"${name##%/}"/g | \
+        printf "%s" "${gen_gitlab_json}" | sed s/%%name%%/"${name##%/}"/g | \
             ___x_cmd_gitlab_http post "/v5/orgs/$org/repos" - | \
             ___x_cmd_gitlab_org_repo_create_status_handler
     done
@@ -143,7 +143,7 @@ ___x_cmd_gitlab_org_repo_create_status_handler(){
 # https://gitee.com/api/v5/swagger#/postV5EnterprisesEnterpriseRepos
 # shellcheck disable=SC2154,SC2034
 ___x_cmd_gitlab_enterprise_repo_create(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 type:
     Access  =   private public innerSource
@@ -174,14 +174,14 @@ option:
     esac
     local name="%%name%%"
     local outsourced="${outsourced:-false}"
-    local gen_gt_json
-    gen_gt_json="$(
+    local gen_gitlab_json
+    gen_gitlab_json="$(
         param:option2json +name +private -access \
         has_issues=^no_issue            has_wiki=^no_wiki              outsourced=^^outsourced \
         can_comment=^no_comment         auto_init=^^no_auto_init)"
 
     for name in "$@"; do
-        printf "%s" "${gen_gt_json}" | sed s/%%name%%/"${name##%/}"/g | \
+        printf "%s" "${gen_gitlab_json}" | sed s/%%name%%/"${name##%/}"/g | \
             ___x_cmd_gitlab_http post "/v5/enterprises/${enterprise##*/}/repos" - | \
             ___x_cmd_gitlab_enterprise_repo_create_status_handler
     done
@@ -224,7 +224,7 @@ ___x_cmd_gitlab_repo_ls(){
 # shellcheck disable=SC2154,SC2034
 # TODO: https://gitee.com/api/v5/swagger#/patchV5ReposOwnerRepo need to design
 ___x_cmd_gitlab_repo_update(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 type:
     Access  =   public private ""
@@ -246,7 +246,7 @@ options:
     --no_lightweight_pr     "Provide lightweight pr"
 '
     param:run
-    [ $# -eq 0 ] && gt_log error "Repo name is empty" && return 1
+    [ $# -eq 0 ] && gitlab_log error "Repo name is empty" && return 1
 
     local private
     case "$access" in
@@ -254,8 +254,8 @@ options:
         private)    private=true ;;
     esac
     [ -z "$name" ] && local name="${repo##*/}"
-    local gen_gt_json
-    gen_gt_json="$(
+    local gen_gitlab_json
+    gen_gitlab_json="$(
         param:option2json +repo +private -access \
             has_issues=^no_issue                        has_wiki=^no_wiki \
             can_comment=^no_comment                     security_hole_enabled=^no_security_hole \
@@ -263,7 +263,7 @@ options:
             no_online_edit=^no_online_edit)"
 
     ___x_cmd_gitlab_param_init_owner_repo
-    printf "%s" "${gen_gt_json}" | ___x_cmd_gitlab_http patch "/v5/repos/${owner_repo}" - | \
+    printf "%s" "${gen_gitlab_json}" | ___x_cmd_gitlab_http patch "/v5/repos/${owner_repo}" - | \
         ___x_cmd_gitlab_repo_update_status_handler
 }
 
@@ -287,7 +287,7 @@ ___x_cmd_gitlab_repo_update_status_handler(){
 # shellcheck disable=SC2154
 # https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepo
 ___x_cmd_gitlab_repo_info(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--repo          "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName
@@ -321,7 +321,7 @@ ___x_cmd_gitlab_repo_info_status_handler() {
 # shellcheck disable=SC2181,SC2154
 ___x_cmd_gitlab_repo_rm(){
     # TODO: -y force del
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #n      "Provide repo path list"    <>
@@ -344,7 +344,7 @@ options:
 # shellcheck disable=SC2181
 # https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoClear
 ___x_cmd_gitlab_repo_clear(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--repo          "Provide owner name and repo path.(default:the current user repo)"   <>:RepoName
@@ -368,7 +368,7 @@ options:
 # shellcheck disable=SC2154,SC2181
 # https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoReviewer
 ___x_cmd_gitlab_repo_review(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--repo             "Provide owner name and repo name.(default:the current user repo)"   <>:RepoName
@@ -379,10 +379,10 @@ options:
 '
     param:run
     ___x_cmd_gitlab_param_init_owner_repo
-    local gen_gt_json
-    gen_gt_json="$(param:option2json)"
+    local gen_gitlab_json
+    gen_gitlab_json="$(param:option2json)"
 
-    ___x_cmd_gitlab_http put "/v5/repos/${owner_repo}/reviewer" "$gen_gt_json" | ___x_cmd_gitlab_repo_review_status_handler
+    ___x_cmd_gitlab_http put "/v5/repos/${owner_repo}/reviewer" "$gen_gitlab_json" | ___x_cmd_gitlab_repo_review_status_handler
 }
 
 # shellcheck disable=SC2154

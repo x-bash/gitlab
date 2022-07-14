@@ -18,7 +18,7 @@ ___x_cmd_gitlab_repo_pr(){
     param:run
 
     ___x_cmd_gitlab_repo_pr _param_help_doc
-    gt_log warn "Subcmd Not Found."
+    gitlab_log warn "Subcmd Not Found."
     return 1
 }
 
@@ -27,7 +27,7 @@ ___x_cmd_gitlab_repo_pr(){
 
 ___x_cmd_gitlab_repo_pr_ls(){
 
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 type:
     State = open merged closed all
@@ -47,7 +47,7 @@ options:
     param:run
     ___x_cmd_gitlab_param_init_owner_repo
 
-    ___gt_ui_mutual ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls" state head base sort since direction milestone_number \
+    ___gitlab_ui_mutual ___x_cmd_gitlab_http get "/v5/repos/${owner_repo}/pulls" state head base sort since direction milestone_number \
         labels page per_page <<A
             ___ui_table_json Id=.id Title=.title Body=.body User=.user.login TargetBranch=.base.ref SourceBranch=.head.ref \
                 CreateTime=.created_at UpdateTime=.updated_at Url=.html_url -- \$@
@@ -69,7 +69,7 @@ alias ___parse_pr_init_owner_repo_and_pr='
 '
 
 ___x_cmd_gitlab_repo_pr_info(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr             "pr id"     <>:NatureNumber
@@ -83,7 +83,7 @@ options:
 
 
 ___x_cmd_gitlab_repo_pr_log(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 type:
     State  = desc asc
@@ -98,7 +98,7 @@ options:
 }
 
 ___x_cmd_gitlab_repo_pr_commit(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr             "pr id"                <>
@@ -110,7 +110,7 @@ options:
 }
 
 ___x_cmd_gitlab_repo_pr_view(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 options:
     #1|--pr             "pr id"         <>:NatureNumber
@@ -128,7 +128,7 @@ options:
 
 # shellcheck disable=SC2154,SC2181
 ___x_cmd_gitlab_repo_pr_create(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 type:
     Bool = true false
@@ -162,13 +162,13 @@ options:
          "base: $base" "source branch: $head" "target branch: $base" "url: $html_url"
         return 0
     else
-        gt_log error "Create pull request failure: $title by $owner_repo $base"
+        gitlab_log error "Create pull request failure: $title by $owner_repo $base"
         return 1
     fi
 }
 
 ___x_cmd_gitlab_repo_pr_update(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
 ##TODO:state
     param:dsl       '
 type:
@@ -191,7 +191,7 @@ options:
 }
 
 ___x_cmd_gitlab_repo_pr_merge(){
-    param:scope     ___x_cmd_gt
+    param:scope     ___x_cmd_gitlab
     param:dsl       '
 type:
     Merge = squash  merge

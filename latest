@@ -8,12 +8,14 @@
 xrc http param ui
 xrc ui/lib/table gh/lib/resource
 
-xrc:inner:lib gitlab
+xrc:inner:lib gitlab utils config current token
 
 x log init gitlab
 ___x_cmd_gitlab(){
-    param:subcmd ___x_cmd_gitlab                                    \
-        user                             "user"
+    param:subcmd ___x_cmd_gitlab        \
+        user        "user"              \
+        config      "save, load, which" \
+        token       "set token"
     param:subcmd:try
     param:run
 
@@ -31,14 +33,14 @@ ___x_cmd_gitlab_make(){
 
     local O="___x_cmd_gitlab_${1:?Provide client name by O environment}"
 
-    ___x_cmd_http make  'https://gitlab.example.com/api/v4'
+    ___x_cmd_http make  'https://gitlab.com/api/v4'
     ___x_cmd_http header put type  "application/json;charset=utf-8"
 
     local token
     token="$(___x_cmd_gitlab_config_get "oauth_token")"
 
     if [ -n "$token" ]; then
-        ___x_cmd_http header put Authorization "token $token"
+        ___x_cmd_http header put "PRIVATE-TOKEN" "$token"
         local user
         user="$(___x_cmd_gitlab_current_owner)" || return 1
         gitlab_log info "Hi $user! You've successfully authenticated."

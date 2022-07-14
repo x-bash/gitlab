@@ -5,15 +5,13 @@
 # maintainer:   Li Junhao
 
 # loading dependencies
-xrc http param str ui
+xrc http param ui
 xrc ui/lib/table gh/lib/resource
 
-xrc:inner:lib gt utils config token user current issue enterprise/main enterprise/member enterprise/team org/main org/member \
-    repo/utils repo/main repo/pr/main repo/pr/assign repo/pr/tester repo/release/main repo/release/attachment repo/member repo/tag repo/page repo/branch _type/main
+xrc:inner:lib gitlab
 
-
-x log init gt
-___x_cmd_gt(){
+x log init gitlab
+___x_cmd_gitlab(){
     param:subcmd ___x_cmd_gt                                        \
         repo                             "repo command"             \
         issue                            "issue"                    \

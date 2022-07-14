@@ -55,8 +55,8 @@ ___x_cmd_gitlab_make(){
     gitlab_log warn "Token is null.${info}"
 }
 
-if [ -z "$DO_NOT_INIT_GITEE_DEFAULT" ]; then
-    ___x_cmd_gitlab_make "GITEE_DEFAULT" && DO_NOT_INIT_GITEE_DEFAULT="true"
+if [ -z "$DO_NOT_INIT_GITLAB_DEFAULT" ]; then
+    ___x_cmd_gitlab_make "GITLAB_DEFAULT" && DO_NOT_INIT_GITLAB_DEFAULT="true"
 fi
 
 xrc setmain ___x_cmd_gitlab

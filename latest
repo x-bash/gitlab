@@ -16,6 +16,7 @@ ___x_cmd_gitlab(){
         user        "user"              \
         repo        "repo command"      \
         config      "save, load, which" \
+        current     "current user"      \
         token       "set token"
     param:subcmd:try
     param:run

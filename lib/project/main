@@ -211,7 +211,7 @@ options:
     --wiki_enabled                                      "(Deprecated) Enable wiki for this project. Use instead. wiki_access_level"                                                                     <>
 '
     param:run
-    ___x_cmd_gitlab_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_project
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json -project)"
     # project name urlecode
@@ -245,9 +245,9 @@ options:
 '
     param:run
 
-    ___x_cmd_gitlab_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_project
 
-    ___x_cmd_gitlab_http get "/repos/${owner_repo}" | ___x_cmd_gitlab_repo_info_status_handler
+    ___x_cmd_gitlab_http get "/repos/${owner_project}" | ___x_cmd_gitlab_repo_info_status_handler
 }
 
 # shellcheck disable=SC2154
@@ -261,7 +261,7 @@ ___x_cmd_gitlab_repo_info_status_handler() {
     if [ -n "$id" ]; then
         ___x_cmd_ui_tf true    "Success" "id: $id" "name: $name" "url: $html_url"
     else
-        ___x_cmd_ui_tf false   "Couldn't find any repo: $owner_repo"
+        ___x_cmd_ui_tf false   "Couldn't find any repo: $owner_project"
         return 1
     fi
 }
@@ -283,7 +283,7 @@ options:
     for i in "$@"; do
         ___x_cmd_gitlab_param_normalize_repo "$i"
         # TODO:http handle，delete repo return data is null.Status: 204 No Content
-        if ___x_cmd_gitlab_http delete "/repos/$owner_repo" >/dev/null; then
+        if ___x_cmd_gitlab_http delete "/repos/$owner_project" >/dev/null; then
             ___x_cmd_ui_tf true  "Deleting repo $i successfully"
         else
             ___x_cmd_ui_tf false "Deleting repo failure: $i. Probably because it desn't exists."
@@ -302,13 +302,13 @@ options:
 '
     param:run
 
-    ___x_cmd_gitlab_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_project
 
     # TODO:http handle，delete repo return data is null.Status: 204 No Content
-    if ___x_cmd_gitlab_http put "/repos/${owner_repo}/clear" >/dev/null; then
-        ___x_cmd_ui_tf true   "Clearing repo ${owner_repo} successfully"
+    if ___x_cmd_gitlab_http put "/repos/${owner_project}/clear" >/dev/null; then
+        ___x_cmd_ui_tf true   "Clearing repo ${owner_project} successfully"
     else
-        ___x_cmd_ui_tf false  "Clearing repo failure: ${owner_repo}"
+        ___x_cmd_ui_tf false  "Clearing repo failure: ${owner_project}"
         return 1
     fi
 }
@@ -329,11 +329,11 @@ options:
     --testers_number      "number of people tested"                                            <>:NatureNumber="1"
 '
     param:run
-    ___x_cmd_gitlab_param_init_owner_repo
+    ___x_cmd_gitlab_param_init_owner_project
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json)"
 
-    ___x_cmd_gitlab_http put "/repos/${owner_repo}/reviewer" "$gen_gitlab_json" | ___x_cmd_gitlab_repo_review_status_handler
+    ___x_cmd_gitlab_http put "/repos/${owner_project}/reviewer" "$gen_gitlab_json" | ___x_cmd_gitlab_repo_review_status_handler
 }
 
 # shellcheck disable=SC2154
@@ -345,9 +345,9 @@ ___x_cmd_gitlab_repo_review_status_handler(){
 
     ___x_cmd_git_json_query_rename name=.name
     if [ -n "$name" ]; then
-        ___x_cmd_ui_tf true   "Setuping ${owner_repo} review configure successfully"
+        ___x_cmd_ui_tf true   "Setuping ${owner_project} review configure successfully"
     else
-        ___x_cmd_ui_tf false  "Setuping repo review configure failure: ${owner_repo}"
+        ___x_cmd_ui_tf false  "Setuping repo review configure failure: ${owner_project}"
         return 1
     fi
 }

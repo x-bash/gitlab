@@ -4,9 +4,10 @@
 # gitlab project member +el:admin -user-a +user-b
 # shellcheck disable=SC2154,SC2086
 ___x_cmd_gitlab_project_member(){
-    param:subcmd ___x_cmd_gitlab_project_member            \
-        ls              "List project member"              \
-        add             "Add project member"               \
+    param:subcmd ___x_cmd_gitlab_project_member         \
+        ls              "List project member"           \
+        user            "Show project member user info" \
+        add             "Add project member"            \
         rm              "Remove member"
     param:subcmd:try
     param:run
@@ -21,7 +22,7 @@ ___x_cmd_gitlab_project_member_ls(){
 options:
     #1|--id         "The ID or URL-encoded path of the project."    <>
     --search        "Search for specific users."                    <>=""
-    --skip_users    "Filter out users with the specified IDs."      <>:integer_array=""
+    --skip_users    "Filter out users with the specified ID."      <>:integer_array=""
 '
  param:run
    ___gitlab_ui_mutual ___x_cmd_gitlab_http get "/projects/$id/users" <<A

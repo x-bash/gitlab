@@ -55,33 +55,37 @@ options:
 }
 
 # shellcheck disable=SC2181
+# 10398306
+# 55641134
 ___x_cmd_gitlab_groups_member_add(){
     param:scope     ___x_cmd_gitlab
     param:dsl       '
-type:
-    role = admin member
 options:
-    --groups           "groups"       <>:address
-    --role          "role"      <>:role="member"
-    #n              "username"
+    --id                "The ID or URL-encoded path of the group"                                   <>:address
+    --expires_at        "A date string in the format YEAR-MONTH-DAY"                                <>=""
+    --access_level      "A valid access level"                                                      <>:Number
+    --invite_source     "The source of the invitation that starts the member creation process."     <>=""
+    --tasks_to_be_done  "Tasks the inviter wants the member to focus on."                           <>=""
+    --tasks_project_id  "The project ID in which to create the task issues."                        <>=""
+    #1|--user_id        "The user ID of the new member or multiple IDs separated by commas"
 '
     param:run
 
     if [ $# -eq 0 ];then
-        gitlab_log error "At least one user's spatial address is needed"
+        gitlab_log error "The user ID of the new member or multiple IDs separated by commas"
         return 1
     fi
 
-    local username
-    for username in "$@"; do
-        # TODO:http handle，delete repo return data is null.Status: 204 No Content
-        if ___x_cmd_gitlab_http put "/groups/${groups##*/}/memberships/${username##*/}" "$role" >/dev/null; then
-            gitlab_log info  "Add $username successfully"
-        else
-            gitlab_log error "Add $username failure"
-            return 1
-        fi
-    done
+    local gen_gitlab_json
+    gen_gitlab_json="$(param:option2json -id +user_id)"
+
+    if ___x_cmd_gitlab_http post "/groups/$id/members" "$gen_gitlab_json" >/dev/null; then
+        gitlab_log info  "Add $username successfully"
+    else
+        gitlab_log error "Add $username failure"
+        return 1
+    fi
+
 }
 
 # shellcheck disable=SC2181

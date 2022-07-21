@@ -18,14 +18,31 @@ ___x_cmd_gitlab_get_multi(){
         ___x_cmd_gitlab_http get "$@" page per_page
         return "$?"
     fi
-    local i=2
-    ___x_cmd_gitlab_http get "$@" page=1 per_page=100
+    local tmp
+    tmp=$(mktemp)
+    ___x_cmd_gitlab_http get "$@" page=1 per_page=100 >> "$tmp"
     local total_count
     total_count="$(___x_cmd_gitlab_resp_header "x-total-pages")"
+    if [ "$total_count" -lt 2 ];then
+        cat "$tmp"
+        rm "$tmp"
+        return
+    fi
+    local i=2
     while [ "$i" -le "$total_count" ]; do
-        ___x_cmd_gitlab_http get "$@" page="$i" per_page=100
+        ___x_cmd_gitlab_http get "$@" page="$i" per_page=100 >> "$tmp"
         i=$((i+1))
     done
+    x ja 'BEGIN{print "["} END{print "]"}O[1]{if(! match(K,"[0-9]"))
+    print K;
+        if(V == "}"){
+            print "},"
+        }else{
+            print V
+        }
+    }' < "$tmp" | x jo
+    gitlab_log error "$tmp"
+    rm "$tmp"
 }
 
 ___x_cmd_gitlab_http(){

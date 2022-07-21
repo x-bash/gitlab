@@ -95,7 +95,7 @@ option:
     local name="$1"
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json +name -p path=gitlab_path)"
-    ___x_cmd_gitlab_http post "/projects" "$gen_gitlab_json" | ___x_cmd_gitlab_project_create_status_handler
+    ___x_cmd_gitlab_http post "/projects" -- "$gen_gitlab_json" | ___x_cmd_gitlab_project_create_status_handler
 }
 
 # shellcheck disable=SC2154

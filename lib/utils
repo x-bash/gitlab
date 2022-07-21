@@ -13,25 +13,24 @@ ___x_cmd_gitlab_resp_body(){
     O="${O:-___X_BASH_HTTP____x_cmd_gitlab_GITLAB_DEFAULT}" ___x_cmd_http_resp body "$@"
 }
 
-___x_cmd_gitlab_get_multi(){
+___x_cmd_gitlab_get_multi() {
     if [ -n "$page" ] || [ -n "$per_page" ]; then
         ___x_cmd_gitlab_http get "$@" page per_page
-        return "$?"
+        return
     fi
     local tmp
     tmp=$(mktemp)
     ___x_cmd_gitlab_http get "$@" page=1 per_page=100 >> "$tmp"
-    local total_count
-    total_count="$(___x_cmd_gitlab_resp_header "x-total-pages")"
-    if [ "$total_count" -lt 2 ];then
+    local next_url
+    _____x_cmd_gitlab_next_url
+    if [ -z "$next_url" ];then
         cat "$tmp"
         rm "$tmp"
         return
     fi
-    local i=2
-    while [ "$i" -le "$total_count" ]; do
-        ___x_cmd_gitlab_http get "$@" page="$i" per_page=100 >> "$tmp"
-        i=$((i+1))
+    while [ -n "$next_url" ]; do
+        ___x_cmd_gitlab_http get "$next_url" >> "$tmp"
+        _____x_cmd_gitlab_next_url
     done
     x ja 'BEGIN{print "["} END{print "]"}O[1]{if(! match(K,"[0-9]"))
     print K;
@@ -41,8 +40,18 @@ ___x_cmd_gitlab_get_multi(){
             print V
         }
     }' < "$tmp" | x jo
-    gitlab_log error "$tmp"
     rm "$tmp"
+}
+
+_____x_cmd_gitlab_next_url(){
+    next_url="$(___x_cmd_gitlab_resp_header "link")"
+    next_url="${next_url#*'rel="prev", <'}"
+    local tmp_url="${next_url%%'>; rel="next"'*}"
+    if [ "$next_url" != "$tmp_url" ];then
+         next_url="${tmp_url#*'api/v4'*}"
+    else
+        next_url=""
+    fi
 }
 
 ___x_cmd_gitlab_http(){

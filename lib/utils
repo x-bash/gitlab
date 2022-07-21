@@ -32,14 +32,10 @@ ___x_cmd_gitlab_get_multi() {
         ___x_cmd_gitlab_http get "$next_url" >> "$tmp"
         _____x_cmd_gitlab_next_url
     done
-    x ja 'BEGIN{print "["} END{print "]"}O[1]{if(! match(K,"[0-9]"))
-    print K;
-        if(V == "}"){
-            print "},"
-        }else{
-            print V
-        }
-    }' < "$tmp" | x jo
+    x ja 'BEGIN{print "["} END{print "]"}O[1]{
+    if ((V == "}") || (V == "]") || (K ~ "^[0-9]+$")) print V
+    else print K ": "V;
+    }' < "$tmp" | x jo fmt
     rm "$tmp"
 }
 

@@ -27,7 +27,7 @@ options:
     param:run
 
     ___parse_pr_init_owner_repo_and_pr
-    ___x_cmd_gitlab_http post "/repos/${owner_project}/pulls/$pr/testers" testers
+    ___x_cmd_gitlab_http post json "/repos/${owner_project}/pulls/$pr/testers" testers
 }
 
 # https://gitee.com/api/swagger#/deleteV5ReposOwnerRepoPullsNumberTesters
@@ -71,7 +71,7 @@ options:
 
     ___parse_pr_init_owner_repo_and_pr
 
-    ___x_cmd_gitlab_http post "/repos/${owner_project}/pulls/$pr/test" force
+    ___x_cmd_gitlab_http post json "/repos/${owner_project}/pulls/$pr/test" force
 }
 
 

@@ -136,7 +136,7 @@ options:
     local gen_gitlab_json
     gen_gitlab_json="$(param:option2json -p +name path=gitlab_path)"
 
-    ___x_cmd_gitlab_http post json "/groups" -- "$gen_gitlab_json" | \
+    ___x_cmd_gitlab_http post "/groups" "$gen_gitlab_json" | \
     {
         ___x_cmd_git_json_query_rename id=.id
         if [ -n "$id" ]; then
@@ -164,7 +164,7 @@ options:
     local group_path="$subgroup_path"
     [ -n "$group_path" ] || group_path="$name"
     gen_gitlab_json="$(param:option2json -subgroup_path path=group_path)"
-    ___x_cmd_gitlab_http post json "/groups" -- "$gen_gitlab_json"| \
+    ___x_cmd_gitlab_http post "/groups" "$gen_gitlab_json"| \
     {
         ___x_cmd_git_json_query_rename id=.id
         if [ -n "$id" ]; then
@@ -212,8 +212,8 @@ options:
 # Section: groups repo
 ___x_cmd_gitlab_groups_repo(){
     param:subcmd ___x_cmd_gitlab_groups_repo    \
-        ls          "list repo"                 \
-        create      "groups repo create"
+        ls          "list repo"
+        # create      "groups repo create"
     param:subcmd:try
     param:run
 
@@ -238,4 +238,6 @@ options:
         ___ui_table_json Id=.id Name=.name path=.path visibility=.visibility web_url=.web_url -- \$@
 A
 }
+
+## TODO: create project to groups
 # EndSection

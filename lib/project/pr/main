@@ -154,7 +154,7 @@ options:
     local title
     local state
     local html_url
-    data="$(___x_cmd_gitlab_http post json "/repos/$owner_project/pulls" title head base body milestone_number \
+    data="$(___x_cmd_gitlab_http post "/repos/$owner_project/pulls" title head base body milestone_number \
         labels issue assignees testers assignees_number testers_number prune_source_branch)"
     ___x_cmd_gitlab_json_query_rename "$data" title=.title state=.state html_url=.html_url
     if [ -n "$title" ];then
